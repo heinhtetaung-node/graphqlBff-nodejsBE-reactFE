@@ -171,6 +171,43 @@ export const MY_APPLICATIONS = gql`
   }
 `;
 
+export const MY_JOBS = gql`
+  query MyJobs($page: Int, $limit: Int) {
+    myJobs(page: $page, limit: $limit) {
+      jobs {
+        id
+        title
+        location
+        salaryRange
+        jobType
+        experienceLevel
+        isActive
+        createdAt
+        company {
+          id
+          name
+        }
+      }
+      total
+    }
+  }
+`;
+
+export const APPLICATIONS_BY_JOB = gql`
+  query ApplicationsByJob($jobId: ID!, $page: Int, $limit: Int) {
+    applicationsByJob(jobId: $jobId, page: $page, limit: $limit) {
+      applications {
+        id
+        userId
+        status
+        coverLetter
+        createdAt
+      }
+      total
+    }
+  }
+`;
+
 // Companies
 export const GET_COMPANIES = gql`
   query GetCompanies($page: Int, $limit: Int) {

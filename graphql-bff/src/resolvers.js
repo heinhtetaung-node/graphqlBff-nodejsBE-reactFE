@@ -66,6 +66,11 @@ const resolvers = {
     async jobsByCompany(_, { companyId, page = 1, limit = 20 }) {
       return jobClient.listJobsByCompany({ companyId, page, limit });
     },
+    async myJobs(_, { page = 1, limit = 20 }, context) {
+      requireAuth(context);
+      requireRole(context, "TALENT_HUNTER");
+      return jobClient.listJobs({ page, limit, postedByUserId: context.user.id });
+    },
 
     // Users
     async user(_, { id }) {

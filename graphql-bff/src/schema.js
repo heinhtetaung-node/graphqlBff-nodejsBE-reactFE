@@ -122,6 +122,7 @@ const typeDefs = `#graphql
     job(id: ID!): Job
     jobs(page: Int, limit: Int, jobType: String, experienceLevel: String, location: String): PaginatedJobs!
     jobsByCompany(companyId: ID!, page: Int, limit: Int): PaginatedJobs!
+    myJobs(page: Int, limit: Int): PaginatedJobs!
 
     # Users
     user(id: ID!): User
