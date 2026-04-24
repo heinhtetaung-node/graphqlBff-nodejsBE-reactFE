@@ -3,7 +3,11 @@ const protoLoader = require("@grpc/proto-loader");
 const path = require("path");
 const { v4: uuidv4 } = require("uuid");
 const db = require("./db");
+const { createLogger } = require("../../../shared/logger");
+const { addHealthCheck } = require("../../../shared/health");
+const { gracefulShutdown } = require("../../../shared/shutdown");
 
+const logger = createLogger("job-service");
 const PROTO_PATH = path.join(__dirname, "../../../protos/job.proto");
 
 const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
@@ -253,18 +257,23 @@ function main() {
   const server = new grpc.Server();
   server.addService(jobProto.JobService.service, handlers);
 
+  const health = addHealthCheck(server, logger);
+
   const port = process.env.GRPC_PORT || "50052";
   server.bindAsync(
     `0.0.0.0:${port}`,
     grpc.ServerCredentials.createInsecure(),
     (err) => {
       if (err) {
-        console.error("Failed to bind server:", err);
+        logger.fatal({ err }, "Failed to bind server");
         process.exit(1);
       }
-      console.log(`Job service running on port ${port}`);
+      health.setServing();
+      logger.info({ port }, "Job service running");
     },
   );
+
+  gracefulShutdown(server, db, logger);
 }
 
 main();

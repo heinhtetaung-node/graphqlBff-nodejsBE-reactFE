@@ -5,6 +5,11 @@ const { v4: uuidv4 } = require("uuid");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const db = require("./db");
+const { createLogger } = require("../../../shared/logger");
+const { addHealthCheck } = require("../../../shared/health");
+const { gracefulShutdown } = require("../../../shared/shutdown");
+
+const logger = createLogger("user-service");
 
 const PROTO_PATH = path.join(__dirname, "../../../protos/user.proto");
 const JWT_SECRET = process.env.JWT_SECRET || "change-me-in-production";
@@ -190,18 +195,23 @@ function main() {
   const server = new grpc.Server();
   server.addService(userProto.UserService.service, handlers);
 
+  const health = addHealthCheck(server, logger);
+
   const port = process.env.GRPC_PORT || "50053";
   server.bindAsync(
     `0.0.0.0:${port}`,
     grpc.ServerCredentials.createInsecure(),
     (err) => {
       if (err) {
-        console.error("Failed to bind server:", err);
+        logger.fatal({ err }, "Failed to bind server");
         process.exit(1);
       }
-      console.log(`User service running on port ${port}`);
+      health.setServing();
+      logger.info({ port }, "User service running");
     },
   );
+
+  gracefulShutdown(server, db, logger);
 }
 
 main();

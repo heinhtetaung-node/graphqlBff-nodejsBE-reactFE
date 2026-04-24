@@ -3,7 +3,11 @@ const protoLoader = require("@grpc/proto-loader");
 const path = require("path");
 const { v4: uuidv4 } = require("uuid");
 const db = require("./db");
+const { createLogger } = require("../../../shared/logger");
+const { addHealthCheck } = require("../../../shared/health");
+const { gracefulShutdown } = require("../../../shared/shutdown");
 
+const logger = createLogger("subscription-service");
 const PROTO_PATH = path.join(__dirname, "../../../protos/subscription.proto");
 
 const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
@@ -240,18 +244,23 @@ function main() {
   const server = new grpc.Server();
   server.addService(subProto.SubscriptionService.service, handlers);
 
+  const health = addHealthCheck(server, logger);
+
   const port = process.env.GRPC_PORT || "50054";
   server.bindAsync(
     `0.0.0.0:${port}`,
     grpc.ServerCredentials.createInsecure(),
     (err) => {
       if (err) {
-        console.error("Failed to bind server:", err);
+        logger.fatal({ err }, "Failed to bind server");
         process.exit(1);
       }
-      console.log(`Subscription service running on port ${port}`);
+      health.setServing();
+      logger.info({ port }, "Subscription service running");
     },
   );
+
+  gracefulShutdown(server, db, logger);
 }
 
 main();

@@ -4,12 +4,35 @@ const {
   userClient,
   subscriptionClient,
 } = require("./grpcClients");
+const {
+  validateUUID,
+  validateEmail,
+  validateString,
+  validateEnum,
+  validatePagination,
+} = require("../../shared/validation");
+const { publish } = require("../../shared/events");
+const subjects = require("../../shared/eventSubjects");
 
 function requireAuth(context) {
   if (!context.user) {
     throw new Error("Authentication required");
   }
   return context.user;
+}
+
+function requireRole(context, ...roles) {
+  const auth = requireAuth(context);
+  if (!roles.includes(auth.role)) {
+    throw new Error(`Forbidden: requires role ${roles.join(" or ")}`);
+  }
+  return auth;
+}
+
+function requireOwner(auth, resourceUserId) {
+  if (auth.userId !== resourceUserId) {
+    throw new Error("Forbidden: you do not own this resource");
+  }
 }
 
 const resolvers = {
@@ -58,11 +81,16 @@ const resolvers = {
       return res.user;
     },
 
-    // Applications
-    async applicationsByJob(_, { jobId, page = 1, limit = 20 }) {
+    // Applications — only the job poster can see applicants
+    async applicationsByJob(_, { jobId, page = 1, limit = 20 }, context) {
+      const auth = requireRole(context, "TALENT_HUNTER");
+      const jobRes = await jobClient.getJob({ id: jobId });
+      requireOwner(auth, jobRes.job.postedByUserId);
       return jobClient.listApplicationsByJob({ jobId, page, limit });
     },
-    async applicationsByUser(_, { userId, page = 1, limit = 20 }) {
+    async applicationsByUser(_, { userId, page = 1, limit = 20 }, context) {
+      const auth = requireAuth(context);
+      requireOwner(auth, userId);
       return jobClient.listApplicationsByUser({ userId, page, limit });
     },
     async myApplications(_, { page = 1, limit = 20 }, context) {
@@ -111,6 +139,13 @@ const resolvers = {
   Mutation: {
     // Auth
     async register(_, args) {
+      validateEmail(args.email);
+      validateString(args.password, "password", {
+        minLength: 6,
+        maxLength: 128,
+      });
+      validateString(args.name, "name", { minLength: 1, maxLength: 100 });
+      validateEnum(args.role, "role", ["TALENT_HUNTER", "JOB_HUNTER"]);
       const res = await userClient.createUser(args);
       const loginRes = await userClient.login({
         email: args.email,
@@ -125,32 +160,66 @@ const resolvers = {
         userId: res.user.id,
         plan,
       });
+      publish(subjects.USER_REGISTERED, {
+        userId: res.user.id,
+        role: args.role,
+      });
       return loginRes;
     },
     async login(_, { email, password }) {
       return userClient.login({ email, password });
     },
 
-    // Companies
+    // Companies — only TALENT_HUNTERs can manage companies
     async createCompany(_, args, context) {
-      requireAuth(context);
+      requireRole(context, "TALENT_HUNTER");
+      validateString(args.name, "company name", {
+        minLength: 1,
+        maxLength: 200,
+      });
       const res = await companyClient.createCompany(args);
+      publish(subjects.COMPANY_CREATED, { company: res.company });
       return res.company;
     },
     async updateCompany(_, args, context) {
-      requireAuth(context);
+      const auth = requireRole(context, "TALENT_HUNTER");
+      // Verify the user belongs to this company
+      const userRes = await userClient.getUser({ id: auth.userId });
+      if (userRes.user.companyId !== args.id) {
+        throw new Error("Forbidden: you can only update your own company");
+      }
       const res = await companyClient.updateCompany(args);
       return res.company;
     },
     async deleteCompany(_, { id }, context) {
-      requireAuth(context);
+      const auth = requireRole(context, "TALENT_HUNTER");
+      const userRes = await userClient.getUser({ id: auth.userId });
+      if (userRes.user.companyId !== id) {
+        throw new Error("Forbidden: you can only delete your own company");
+      }
       const res = await companyClient.deleteCompany({ id });
       return res.success;
     },
 
-    // Jobs (with usage limit check)
+    // Jobs — only TALENT_HUNTERs can post/edit/delete
     async createJob(_, args, context) {
-      const auth = requireAuth(context);
+      const auth = requireRole(context, "TALENT_HUNTER");
+      validateUUID(args.companyId, "companyId");
+      validateString(args.title, "title", { minLength: 3, maxLength: 200 });
+      if (args.jobType)
+        validateEnum(args.jobType, "jobType", [
+          "FULL_TIME",
+          "PART_TIME",
+          "CONTRACT",
+          "REMOTE",
+        ]);
+      if (args.experienceLevel)
+        validateEnum(args.experienceLevel, "experienceLevel", [
+          "JUNIOR",
+          "MID",
+          "SENIOR",
+          "LEAD",
+        ]);
       // Check usage limit for talent hunters
       const limitCheck = await subscriptionClient.checkUsageLimit({
         userId: auth.userId,
@@ -170,22 +239,28 @@ const resolvers = {
         userId: auth.userId,
         actionType: "JOB_POST",
       });
+      publish(subjects.JOB_CREATED, { job: res.job });
       return res.job;
     },
     async updateJob(_, args, context) {
-      requireAuth(context);
+      const auth = requireRole(context, "TALENT_HUNTER");
+      // Verify ownership
+      const existing = await jobClient.getJob({ id: args.id });
+      requireOwner(auth, existing.job.postedByUserId);
       const res = await jobClient.updateJob(args);
       return res.job;
     },
     async deleteJob(_, { id }, context) {
-      requireAuth(context);
+      const auth = requireRole(context, "TALENT_HUNTER");
+      const existing = await jobClient.getJob({ id });
+      requireOwner(auth, existing.job.postedByUserId);
       const res = await jobClient.deleteJob({ id });
       return res.success;
     },
 
-    // Applications (with usage limit check)
+    // Applications — only JOB_HUNTERs can apply
     async applyToJob(_, { jobId, coverLetter, resumeUrl }, context) {
-      const auth = requireAuth(context);
+      const auth = requireRole(context, "JOB_HUNTER");
       // Check usage limit for job hunters
       const limitCheck = await subscriptionClient.checkUsageLimit({
         userId: auth.userId,
@@ -206,12 +281,19 @@ const resolvers = {
         userId: auth.userId,
         actionType: "JOB_APPLY",
       });
+      publish(subjects.APPLICATION_SUBMITTED, { application: res.application });
       return res.application;
     },
 
     // Subscriptions
     async subscribe(_, { plan }, context) {
       const auth = requireAuth(context);
+      validateEnum(plan, "plan", [
+        "TALENT_HUNTER_FREE",
+        "TALENT_HUNTER_PRO",
+        "JOB_HUNTER_FREE",
+        "JOB_HUNTER_PRO",
+      ]);
       const res = await subscriptionClient.createSubscription({
         userId: auth.userId,
         plan,

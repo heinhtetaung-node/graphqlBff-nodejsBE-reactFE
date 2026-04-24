@@ -1,0 +1,86 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: graphql-bff
+  namespace: job-platform
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: graphql-bff
+  template:
+    metadata:
+      labels:
+        app: graphql-bff
+    spec:
+      containers:
+        - name: graphql-bff
+          image: graphql-bff:latest
+          ports:
+            - containerPort: 4000
+          env:
+            - name: PORT
+              value: "4000"
+            - name: COMPANY_SERVICE_URL
+              value: company-service:50051
+            - name: JOB_SERVICE_URL
+              value: job-service:50052
+            - name: USER_SERVICE_URL
+              value: user-service:50053
+            - name: SUBSCRIPTION_SERVICE_URL
+              value: subscription-service:50054
+            - name: NATS_URL
+              value: nats://nats:4222
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: JWT_SECRET
+          resources:
+            requests: { cpu: 100m, memory: 128Mi }
+            limits: { cpu: 500m, memory: 256Mi }
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 4000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 4000
+            initialDelaySeconds: 10
+            periodSeconds: 15
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: graphql-bff
+  namespace: job-platform
+spec:
+  selector:
+    app: graphql-bff
+  ports:
+    - port: 4000
+      targetPort: 4000
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: graphql-bff
+  namespace: job-platform
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: api.job-platform.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: graphql-bff
+                port:
+                  number: 4000

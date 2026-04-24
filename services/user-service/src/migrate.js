@@ -1,30 +1,22 @@
-const db = require("./db");
+const knex = require("knex");
+const config = require("../knexfile");
 
 async function migrate() {
-  const exists = await db.schema.hasTable("users");
-  if (!exists) {
-    await db.schema.createTable("users", (table) => {
-      table.uuid("id").primary();
-      table.string("email").unique().notNullable();
-      table.string("password_hash").notNullable();
-      table.string("name").notNullable();
-      table.string("role").notNullable(); // TALENT_HUNTER, JOB_HUNTER
-      table.string("phone");
-      table.string("avatar_url");
-      table.text("bio");
-      table.uuid("company_id");
-      table.specificType("skills", "text[]").defaultTo("{}");
-      table.string("resume_url");
-      table.timestamps(true, true);
-    });
-    console.log("users table created");
-  } else {
-    console.log("users table already exists");
+  const db = knex(config);
+  try {
+    const [batch, migrations] = await db.migrate.latest();
+    if (migrations.length === 0) {
+      console.log("Already up to date");
+    } else {
+      console.log(`Batch ${batch}: ${migrations.length} migration(s) applied`);
+      migrations.forEach((m) => console.log(`  - ${m}`));
+    }
+  } catch (err) {
+    console.error("Migration failed:", err);
+    process.exit(1);
+  } finally {
+    await db.destroy();
   }
-  await db.destroy();
 }
 
-migrate().catch((err) => {
-  console.error("Migration failed:", err);
-  process.exit(1);
-});
+migrate();

@@ -1,6 +1,7 @@
 const grpc = require("@grpc/grpc-js");
 const protoLoader = require("@grpc/proto-loader");
 const path = require("path");
+const { wrapClientWithCircuitBreaker } = require("../../shared/circuitBreaker");
 
 function loadClient(protoFile, packageName, serviceName, address) {
   const packageDefinition = protoLoader.loadSync(
@@ -33,40 +34,52 @@ function promisify(client) {
   return wrapper;
 }
 
-const companyClient = promisify(
-  loadClient(
-    "company.proto",
-    "company",
-    "CompanyService",
-    process.env.COMPANY_SERVICE_URL || "localhost:50051",
+const companyClient = wrapClientWithCircuitBreaker(
+  promisify(
+    loadClient(
+      "company.proto",
+      "company",
+      "CompanyService",
+      process.env.COMPANY_SERVICE_URL || "localhost:50051",
+    ),
   ),
+  "company-service",
 );
 
-const jobClient = promisify(
-  loadClient(
-    "job.proto",
-    "job",
-    "JobService",
-    process.env.JOB_SERVICE_URL || "localhost:50052",
+const jobClient = wrapClientWithCircuitBreaker(
+  promisify(
+    loadClient(
+      "job.proto",
+      "job",
+      "JobService",
+      process.env.JOB_SERVICE_URL || "localhost:50052",
+    ),
   ),
+  "job-service",
 );
 
-const userClient = promisify(
-  loadClient(
-    "user.proto",
-    "user",
-    "UserService",
-    process.env.USER_SERVICE_URL || "localhost:50053",
+const userClient = wrapClientWithCircuitBreaker(
+  promisify(
+    loadClient(
+      "user.proto",
+      "user",
+      "UserService",
+      process.env.USER_SERVICE_URL || "localhost:50053",
+    ),
   ),
+  "user-service",
 );
 
-const subscriptionClient = promisify(
-  loadClient(
-    "subscription.proto",
-    "subscription",
-    "SubscriptionService",
-    process.env.SUBSCRIPTION_SERVICE_URL || "localhost:50054",
+const subscriptionClient = wrapClientWithCircuitBreaker(
+  promisify(
+    loadClient(
+      "subscription.proto",
+      "subscription",
+      "SubscriptionService",
+      process.env.SUBSCRIPTION_SERVICE_URL || "localhost:50054",
+    ),
   ),
+  "subscription-service",
 );
 
 module.exports = { companyClient, jobClient, userClient, subscriptionClient };
