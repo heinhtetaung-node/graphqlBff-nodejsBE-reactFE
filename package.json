@@ -1,0 +1,17 @@
+{
+  "name": "job-platform",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "docker:up": "docker compose up --build -d",
+    "docker:down": "docker compose down",
+    "docker:logs": "docker compose logs -f",
+    "install:all": "cd services/company-service && npm install && cd ../job-service && npm install && cd ../user-service && npm install && cd ../subscription-service && npm install && cd ../../graphql-bff && npm install && cd ../react-fe && npm install",
+    "dev:company": "cd services/company-service && npm run dev",
+    "dev:job": "cd services/job-service && npm run dev",
+    "dev:user": "cd services/user-service && npm run dev",
+    "dev:subscription": "cd services/subscription-service && npm run dev",
+    "dev:bff": "cd graphql-bff && npm run dev",
+    "dev:fe": "cd react-fe && npm run dev"
+  }
+}

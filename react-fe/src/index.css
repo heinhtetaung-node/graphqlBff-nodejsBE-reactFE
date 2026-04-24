@@ -1,0 +1,83 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: #f5f7fa;
+  color: #1a1a2e;
+  line-height: 1.6;
+}
+
+.container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+
+nav {
+  background: #1a1a2e;
+  color: #fff;
+  padding: 16px 0;
+}
+nav .container { display: flex; justify-content: space-between; align-items: center; }
+nav a { color: #fff; text-decoration: none; margin-left: 20px; }
+nav a:hover { text-decoration: underline; }
+
+.btn {
+  display: inline-block;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.btn-primary { background: #4361ee; color: #fff; }
+.btn-primary:hover { background: #3a56d4; }
+.btn-danger { background: #e63946; color: #fff; }
+.btn-secondary { background: #6c757d; color: #fff; }
+
+.card {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  padding: 24px;
+  margin-bottom: 16px;
+}
+
+.form-group { margin-bottom: 16px; }
+.form-group label { display: block; margin-bottom: 4px; font-weight: 600; font-size: 14px; }
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.badge-green { background: #d4edda; color: #155724; }
+.badge-blue { background: #cce5ff; color: #004085; }
+.badge-yellow { background: #fff3cd; color: #856404; }
+.badge-red { background: #f8d7da; color: #721c24; }
+
+.grid { display: grid; gap: 16px; }
+.grid-2 { grid-template-columns: repeat(auto-fill, minmax(480px, 1fr)); }
+.grid-3 { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+
+.page-header { padding: 32px 0 16px; }
+.page-header h1 { font-size: 28px; }
+
+.error { color: #e63946; margin: 8px 0; }
+.loading { text-align: center; padding: 40px; color: #666; }
+
+.pricing-card { text-align: center; border: 2px solid #eee; }
+.pricing-card.featured { border-color: #4361ee; }
+.pricing-card .price { font-size: 36px; font-weight: 700; margin: 16px 0; }
+.pricing-card .price span { font-size: 16px; color: #666; }
+.pricing-card ul { list-style: none; margin: 16px 0; }
+.pricing-card ul li { padding: 8px 0; border-bottom: 1px solid #f0f0f0; }

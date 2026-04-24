@@ -1,0 +1,87 @@
+syntax = "proto3";
+
+package subscription;
+
+service SubscriptionService {
+  rpc CreateSubscription (CreateSubscriptionRequest) returns (SubscriptionResponse);
+  rpc GetSubscription (GetSubscriptionRequest) returns (SubscriptionResponse);
+  rpc GetSubscriptionByUser (GetSubscriptionByUserRequest) returns (SubscriptionResponse);
+  rpc CancelSubscription (CancelSubscriptionRequest) returns (SubscriptionResponse);
+  rpc CheckUsageLimit (CheckUsageLimitRequest) returns (CheckUsageLimitResponse);
+  rpc IncrementUsage (IncrementUsageRequest) returns (UsageResponse);
+  rpc GetUsage (GetUsageRequest) returns (UsageResponse);
+}
+
+// Plans:
+// TALENT_HUNTER_FREE  - free, 10 job posts/month
+// TALENT_HUNTER_PRO   - $30/month, unlimited job posts
+// JOB_HUNTER_FREE     - free, 10 job applies/month
+// JOB_HUNTER_PRO      - $5/month, unlimited job applies
+
+message Subscription {
+  string id = 1;
+  string user_id = 2;
+  string plan = 3;            // TALENT_HUNTER_FREE, TALENT_HUNTER_PRO, JOB_HUNTER_FREE, JOB_HUNTER_PRO
+  double price = 4;
+  string status = 5;          // ACTIVE, CANCELLED, EXPIRED
+  string starts_at = 6;
+  string ends_at = 7;
+  string created_at = 8;
+  string updated_at = 9;
+}
+
+message Usage {
+  string id = 1;
+  string user_id = 2;
+  string action_type = 3;     // JOB_POST, JOB_APPLY
+  int32 used_count = 4;
+  int32 max_count = 5;        // -1 = unlimited
+  string period_start = 6;
+  string period_end = 7;
+}
+
+message CreateSubscriptionRequest {
+  string user_id = 1;
+  string plan = 2;
+}
+
+message GetSubscriptionRequest {
+  string id = 1;
+}
+
+message GetSubscriptionByUserRequest {
+  string user_id = 1;
+}
+
+message CancelSubscriptionRequest {
+  string id = 1;
+}
+
+message SubscriptionResponse {
+  Subscription subscription = 1;
+}
+
+message CheckUsageLimitRequest {
+  string user_id = 1;
+  string action_type = 2;
+}
+
+message CheckUsageLimitResponse {
+  bool allowed = 1;
+  int32 used_count = 2;
+  int32 max_count = 3;
+}
+
+message IncrementUsageRequest {
+  string user_id = 1;
+  string action_type = 2;
+}
+
+message UsageResponse {
+  Usage usage = 1;
+}
+
+message GetUsageRequest {
+  string user_id = 1;
+  string action_type = 2;
+}
