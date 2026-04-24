@@ -3,9 +3,10 @@
 ```
 react-fe (React + Vite)
     ↓ HTTP
-graphql-bff (Apollo Server)
-    ↓ gRPC
-┌─────────────────┬─────────────────┬──────────────────┬─────────────────────┐
+┌───────────────────────────────────┐
+│  graphql-bff (Apollo Server)      │  document-service (Express HTTP)
+│       ↓ gRPC                      │  :5000 — file upload & download
+├─────────────────┬─────────────────┼──────────────────┬─────────────────────┐
 │ company-service  │  job-service    │  user-service    │ subscription-service│
 │ :50051           │  :50052         │  :50053          │ :50054              │
 │ company_db       │  job_db         │  user_db         │ subscription_db     │
@@ -20,17 +21,18 @@ graphql-bff (Apollo Server)
 
 ## Services
 
-| Service              | Port  | DB              | Description                       |
-| -------------------- | ----- | --------------- | --------------------------------- |
-| company-service      | 50051 | company_db      | Company CRUD                      |
-| job-service          | 50052 | job_db          | Jobs + applications               |
-| user-service         | 50053 | user_db         | Users (talent/job hunters) + auth |
-| subscription-service | 50054 | subscription_db | Plans, usage limits               |
-| graphql-bff          | 4000  | —               | GraphQL gateway → gRPC            |
-| react-fe             | 3000  | —               | React SPA                         |
-| postgres             | 5450  | —               | Shared PostgreSQL (4 databases)   |
-| nats                 | 4222  | —               | Message broker (async events)     |
-| jaeger               | 16686 | —               | Distributed tracing UI            |
+| Service              | Port  | Protocol | DB              | Description                       |
+| -------------------- | ----- | -------- | --------------- | --------------------------------- |
+| company-service      | 50051 | gRPC     | company_db      | Company CRUD                      |
+| job-service          | 50052 | gRPC     | job_db          | Jobs + applications               |
+| user-service         | 50053 | gRPC     | user_db         | Users (talent/job hunters) + auth |
+| subscription-service | 50054 | gRPC     | subscription_db | Plans, usage limits               |
+| document-service     | 5000  | HTTP     | —               | File upload & download (CVs)      |
+| graphql-bff          | 4000  | HTTP     | —               | GraphQL gateway → gRPC            |
+| react-fe             | 3000  | HTTP     | —               | React SPA                         |
+| postgres             | 5450  | TCP      | —               | Shared PostgreSQL (4 databases)   |
+| nats                 | 4222  | TCP      | —               | Message broker (async events)     |
+| jaeger               | 16686 | HTTP     | —               | Distributed tracing UI            |
 
 ## Subscription Plans
 
@@ -40,6 +42,35 @@ graphql-bff (Apollo Server)
 | TALENT_HUNTER_PRO  | $30/month | Unlimited job posts   |
 | JOB_HUNTER_FREE    | Free      | 10 job applies/month  |
 | JOB_HUNTER_PRO     | $5/month  | Unlimited job applies |
+
+## Document Service (CV Upload)
+
+The `document-service` is a standalone HTTP microservice for file storage. Unlike the other backend services (which use gRPC), it uses plain HTTP since browsers need to upload/download files directly.
+
+**Endpoints:**
+
+| Method | Path               | Auth   | Description                           |
+| ------ | ------------------ | ------ | ------------------------------------- |
+| POST   | `/upload`          | JWT    | Upload a file (PDF/DOC/DOCX, max 5MB) |
+| GET    | `/documents/:file` | Public | Download a previously uploaded file   |
+| GET    | `/health`          | Public | Health check                          |
+
+**Upload request:**
+
+```bash
+curl -X POST http://localhost:5000/upload \
+  -H "Authorization: Bearer <token>" \
+  -F "file=@resume.pdf"
+# → { "url": "/documents/abc123.pdf", "filename": "abc123.pdf", "size": 102400 }
+```
+
+**How it works:**
+
+- Job hunters attach a CV (PDF or Word) when applying for a job
+- The frontend uploads directly to `document-service` (bypasses the BFF)
+- The returned URL is saved as `resumeUrl` in the application record via GraphQL
+- Talent hunters see a "Download CV" link when viewing applications on their dashboard
+- Files are stored on disk in a Docker volume (`doc-uploads`) for persistence
 
 ---
 
@@ -60,8 +91,9 @@ docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
 **Access:**
 | URL | What |
 |-----|------|
-| http://localhost:3000 | React frontend |
+| http://localhost:3001 | React frontend (dev) |
 | http://localhost:4000/graphql | GraphQL playground |
+| http://localhost:5000 | Document service (file upload/download) |
 | http://localhost:16686 | Jaeger tracing UI |
 
 **Stop:**
@@ -178,6 +210,7 @@ services/
   job-service/                 # gRPC service → job_db (jobs + applications)
   user-service/                # gRPC service → user_db (auth + profiles)
   subscription-service/        # gRPC service → subscription_db (plans + usage)
+  document-service/            # HTTP service — file upload & download (CVs)
 graphql-bff/                   # Apollo Server → all gRPC services
 react-fe/                      # React + Vite SPA
 docker-compose.yml             # Production stack

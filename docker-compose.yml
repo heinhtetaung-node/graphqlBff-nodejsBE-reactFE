@@ -122,12 +122,25 @@ services:
       - ./protos:/protos:ro
       - ./shared:/shared:ro
 
+  # ---------- Document Service (HTTP) ----------
+  document-service:
+    build:
+      context: ./services/document-service
+    environment:
+      PORT: "5000"
+      NODE_PATH: /app/node_modules
+      JWT_SECRET: super-secret-jwt-key-change-in-prod
+    ports: ["5001:5000"]
+    volumes:
+      - ./shared:/shared:ro
+      - doc-uploads:/app/uploads
+
   # ---------- React Frontend ----------
   react-fe:
     build:
       context: ./react-fe
     ports: ["3000:80"]
-    depends_on: [graphql-bff]
+    depends_on: [graphql-bff, document-service]
 
   # ---------- Observability ----------
   jaeger:
@@ -141,3 +154,4 @@ services:
 
 volumes:
   pg-data:
+  doc-uploads:

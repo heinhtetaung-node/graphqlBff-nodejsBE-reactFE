@@ -201,6 +201,7 @@ export const APPLICATIONS_BY_JOB = gql`
         userId
         status
         coverLetter
+        resumeUrl
         createdAt
       }
       total

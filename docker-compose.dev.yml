@@ -37,6 +37,13 @@ services:
       - ./shared:/shared:ro
     command: ["npx", "nodemon", "--watch", "src", "--watch", "/shared", "src/index.js"]
 
+  document-service:
+    volumes:
+      - ./services/document-service/src:/app/src
+      - ./shared:/shared:ro
+      - doc-uploads:/app/uploads
+    command: ["npx", "nodemon", "--watch", "src", "--watch", "/shared", "src/index.js"]
+
   react-fe:
     build:
       context: ./react-fe

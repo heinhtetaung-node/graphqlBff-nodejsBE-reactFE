@@ -8,6 +8,8 @@ export default defineConfig({
     host: true,
     proxy: {
       "/graphql": "http://graphql-bff:4000",
+      "/upload": "http://document-service:5000",
+      "/documents": "http://document-service:5000",
     },
   },
 });

@@ -115,7 +115,8 @@ const handlers = {
       if (experienceLevel)
         query = query.where("experience_level", experienceLevel);
       if (location) query = query.whereILike("location", `%${location}%`);
-      if (postedByUserId) query = query.where("posted_by_user_id", postedByUserId);
+      if (postedByUserId)
+        query = query.where("posted_by_user_id", postedByUserId);
       const [{ count }] = await query.clone().count();
       const rows = await query
         .orderBy("created_at", "desc")
