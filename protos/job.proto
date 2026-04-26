@@ -63,6 +63,7 @@ message ListJobsRequest {
   string experience_level = 4;
   string location = 5;
   string posted_by_user_id = 6;
+  string company_id = 7;
 }
 
 message ListJobsByCompanyRequest {

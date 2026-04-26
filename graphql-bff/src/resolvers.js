@@ -53,7 +53,7 @@ const resolvers = {
     },
     async jobs(
       _,
-      { page = 1, limit = 20, jobType, experienceLevel, location },
+      { page = 1, limit = 20, jobType, experienceLevel, location, companyId },
     ) {
       return jobClient.listJobs({
         page,
@@ -61,6 +61,7 @@ const resolvers = {
         jobType,
         experienceLevel,
         location,
+        companyId,
       });
     },
     async jobsByCompany(_, { companyId, page = 1, limit = 20 }) {

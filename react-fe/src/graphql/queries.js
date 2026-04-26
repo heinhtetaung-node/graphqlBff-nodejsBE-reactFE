@@ -55,6 +55,7 @@ export const GET_JOBS = gql`
     $jobType: String
     $experienceLevel: String
     $location: String
+    $companyId: ID
   ) {
     jobs(
       page: $page
@@ -62,6 +63,7 @@ export const GET_JOBS = gql`
       jobType: $jobType
       experienceLevel: $experienceLevel
       location: $location
+      companyId: $companyId
     ) {
       jobs {
         id

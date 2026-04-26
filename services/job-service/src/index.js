@@ -108,6 +108,7 @@ const handlers = {
         experienceLevel,
         location,
         postedByUserId,
+        companyId,
       } = call.request;
       const offset = (page - 1) * limit;
       let query = db("jobs").where("is_active", true);
@@ -117,6 +118,8 @@ const handlers = {
       if (location) query = query.whereILike("location", `%${location}%`);
       if (postedByUserId)
         query = query.where("posted_by_user_id", postedByUserId);
+      if (companyId)
+        query = query.where("company_id", companyId);
       const [{ count }] = await query.clone().count();
       const rows = await query
         .orderBy("created_at", "desc")

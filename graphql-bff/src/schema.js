@@ -120,7 +120,7 @@ const typeDefs = `#graphql
 
     # Jobs
     job(id: ID!): Job
-    jobs(page: Int, limit: Int, jobType: String, experienceLevel: String, location: String): PaginatedJobs!
+    jobs(page: Int, limit: Int, jobType: String, experienceLevel: String, location: String, companyId: ID): PaginatedJobs!
     jobsByCompany(companyId: ID!, page: Int, limit: Int): PaginatedJobs!
     myJobs(page: Int, limit: Int): PaginatedJobs!
 
