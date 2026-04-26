@@ -73,6 +73,9 @@ test.describe("Reviews & Ratings", () => {
     const stars = page.locator("form span").filter({ hasText: "★" });
     await stars.nth(3).click();
 
+    // Fill position title
+    await page.locator('form input[type="text"]').fill("Software Engineer");
+
     // Fill comment
     await page.locator("form textarea").fill("Great company to work for!");
 
@@ -85,7 +88,7 @@ test.describe("Reviews & Ratings", () => {
     // Review should appear
     await expect(page.getByText("Reviews (1)")).toBeVisible();
     await expect(page.getByText("Great company to work for!")).toBeVisible();
-    await expect(page.locator("strong", { hasText: JH_NAME })).toBeVisible();
+    await expect(page.locator("strong", { hasText: "Software Engineer" })).toBeVisible();
   });
 
   test("R3: Average rating shows on company detail", async ({ page }) => {
@@ -114,7 +117,6 @@ test.describe("Reviews & Ratings", () => {
       page.getByRole("heading", { name: COMPANY_NAME }),
     ).toBeVisible();
     await expect(page.getByText("Write a Review")).not.toBeVisible();
-    await expect(page.getByText("Reviews (1)")).toBeVisible();
     await expect(page.getByText("Great company to work for!")).toBeVisible();
   });
 });

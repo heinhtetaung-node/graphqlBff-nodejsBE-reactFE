@@ -10,6 +10,7 @@ exports.up = function (knex) {
     table.uuid("user_id").notNullable();
     table.integer("rating").notNullable();
     table.text("comment");
+    table.string("position_title");
     table.timestamps(true, true);
     table.unique(["company_id", "user_id"]);
     table.index("company_id");

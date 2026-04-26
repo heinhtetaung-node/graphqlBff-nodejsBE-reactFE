@@ -31,6 +31,7 @@ export default function CompanyDetailPage() {
   const { user } = useAuth();
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
+  const [positionTitle, setPositionTitle] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
   const { data: companiesData } = useQuery(GET_COMPANIES, {
@@ -53,6 +54,7 @@ export default function CompanyDetailPage() {
         setSubmitted(true);
         setRating(0);
         setComment("");
+        setPositionTitle("");
         refetch();
       },
     },
@@ -61,7 +63,7 @@ export default function CompanyDetailPage() {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (rating < 1) return;
-    createReview({ variables: { companyId: id, rating, comment } });
+    createReview({ variables: { companyId: id, rating, comment, positionTitle: positionTitle || undefined } });
   };
 
   const reviews = reviewsData?.reviews?.reviews || [];
@@ -125,6 +127,15 @@ export default function CompanyDetailPage() {
               <StarRating value={rating} onChange={setRating} />
             </div>
             <div className="form-group">
+              <label>Position Title (optional)</label>
+              <input
+                type="text"
+                value={positionTitle}
+                onChange={(e) => setPositionTitle(e.target.value)}
+                placeholder="e.g. Software Engineer"
+              />
+            </div>
+            <div className="form-group">
               <label>Comment</label>
               <textarea
                 rows={4}
@@ -184,7 +195,7 @@ export default function CompanyDetailPage() {
             >
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <StarRating value={review.rating} readonly />
-                <strong>{review.user?.name || "Anonymous"}</strong>
+                <strong>{review.positionTitle || "Former Employee"}</strong>
               </div>
               <span style={{ color: "#999", fontSize: 13 }}>
                 {new Date(review.createdAt).toLocaleDateString()}

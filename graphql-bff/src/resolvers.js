@@ -186,7 +186,7 @@ const resolvers = {
     },
 
     // Reviews — only JOB_HUNTERs can review
-    async createReview(_, { companyId, rating, comment }, context) {
+    async createReview(_, { companyId, rating, comment, positionTitle }, context) {
       const auth = requireRole(context, "JOB_HUNTER");
       if (rating < 1 || rating > 5) {
         throw new Error("Rating must be between 1 and 5");
@@ -196,6 +196,7 @@ const resolvers = {
         userId: auth.userId,
         rating,
         comment,
+        positionTitle,
       });
       return res.review;
     },
@@ -421,16 +422,8 @@ const resolvers = {
     },
   },
 
-  Review: {
-    async user(review) {
-      try {
-        const res = await userClient.getUser({ id: review.userId });
-        return res.user;
-      } catch {
-        return null;
-      }
-    },
-  },
+  Review: {},
+
 };
 
 module.exports = resolvers;

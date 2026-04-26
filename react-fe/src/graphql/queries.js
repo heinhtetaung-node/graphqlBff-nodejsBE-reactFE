@@ -330,10 +330,7 @@ export const GET_REVIEWS = gql`
         userId
         rating
         comment
-        user {
-          id
-          name
-        }
+        positionTitle
         createdAt
       }
       total
@@ -343,11 +340,12 @@ export const GET_REVIEWS = gql`
 `;
 
 export const CREATE_REVIEW = gql`
-  mutation CreateReview($companyId: ID!, $rating: Int!, $comment: String) {
-    createReview(companyId: $companyId, rating: $rating, comment: $comment) {
+  mutation CreateReview($companyId: ID!, $rating: Int!, $comment: String, $positionTitle: String) {
+    createReview(companyId: $companyId, rating: $rating, comment: $comment, positionTitle: $positionTitle) {
       id
       rating
       comment
+      positionTitle
       createdAt
     }
   }

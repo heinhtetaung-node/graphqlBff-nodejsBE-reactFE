@@ -80,6 +80,7 @@ message Review {
   int32 rating = 4;
   string comment = 5;
   string created_at = 6;
+  string position_title = 7;
 }
 
 message CreateReviewRequest {
@@ -87,6 +88,7 @@ message CreateReviewRequest {
   string user_id = 2;
   int32 rating = 3;
   string comment = 4;
+  string position_title = 5;
 }
 
 message ReviewResponse {

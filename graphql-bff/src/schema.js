@@ -21,7 +21,7 @@ const typeDefs = `#graphql
     userId: ID!
     rating: Int!
     comment: String
-    user: User
+    positionTitle: String
     createdAt: String
   }
 
@@ -173,7 +173,7 @@ const typeDefs = `#graphql
     deleteCompany(id: ID!): Boolean!
 
     # Reviews
-    createReview(companyId: ID!, rating: Int!, comment: String): Review!
+    createReview(companyId: ID!, rating: Int!, comment: String, positionTitle: String): Review!
 
     # Jobs
     createJob(companyId: ID!, title: String!, description: String, location: String, salaryRange: String, jobType: String, experienceLevel: String, skills: [String!]): Job!
