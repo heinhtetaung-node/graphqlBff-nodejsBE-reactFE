@@ -95,9 +95,10 @@ export default function JobDetailPage() {
             />
           </div>
           <div className="form-group">
-            <label>Upload CV (PDF or Word, max 5MB)</label>
+            <label>Upload CV (PDF or Word, max 5MB) *</label>
             <input
               type="file"
+              required
               accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
               onChange={(e) => setCvFile(e.target.files[0] || null)}
             />
@@ -112,6 +113,10 @@ export default function JobDetailPage() {
             disabled={applying || uploading}
             onClick={async () => {
               setApplyError("");
+              if (!cvFile) {
+                setApplyError("Please upload your CV before applying.");
+                return;
+              }
               try {
                 let resumeUrl = "";
                 if (cvFile) {

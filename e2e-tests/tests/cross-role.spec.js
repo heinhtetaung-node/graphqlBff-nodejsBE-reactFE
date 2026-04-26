@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import path from "path";
 import {
   uniqueEmail,
   TEST_PASSWORD,
@@ -62,6 +63,10 @@ test.describe.serial("Cross-Role Interaction", () => {
     await page.getByText("Apply for this position").waitFor();
     await field(page, "Cover Letter").fill(
       "Cross-role e2e test application from job hunter.",
+    );
+    const fileInput = page.locator("input[type='file']");
+    await fileInput.setInputFiles(
+      path.resolve(import.meta.dirname, "fixtures/test-cv.pdf"),
     );
     await page.getByRole("button", { name: "Submit Application" }).click();
     await expect(
