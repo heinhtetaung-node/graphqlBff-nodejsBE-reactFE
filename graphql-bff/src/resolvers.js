@@ -67,12 +67,12 @@ const resolvers = {
       return jobClient.listJobsByCompany({ companyId, page, limit });
     },
     async myJobs(_, { page = 1, limit = 20 }, context) {
-      requireAuth(context);
+      const auth = requireAuth(context);
       requireRole(context, "TALENT_HUNTER");
       return jobClient.listJobs({
         page,
         limit,
-        postedByUserId: context.user.id,
+        postedByUserId: auth.userId,
       });
     },
 
@@ -181,12 +181,17 @@ const resolvers = {
 
     // Companies — only TALENT_HUNTERs can manage companies
     async createCompany(_, args, context) {
-      requireRole(context, "TALENT_HUNTER");
+      const auth = requireRole(context, "TALENT_HUNTER");
       validateString(args.name, "company name", {
         minLength: 1,
         maxLength: 200,
       });
       const res = await companyClient.createCompany(args);
+      // Link the company to the user who created it
+      await userClient.updateUser({
+        id: auth.userId,
+        companyId: res.company.id,
+      });
       publish(subjects.COMPANY_CREATED, { company: res.company });
       return res.company;
     },

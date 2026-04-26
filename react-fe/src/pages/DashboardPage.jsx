@@ -46,7 +46,7 @@ function JobApplications({ jobId }) {
         >
           <div>
             <span style={{ color: "#555" }}>
-              Applicant ID: {app.userId?.slice(0, 8)}...
+              {app.user?.name || "Unknown Applicant"}
             </span>
             {app.coverLetter && (
               <p style={{ margin: "4px 0 0", fontSize: 13, color: "#777" }}>

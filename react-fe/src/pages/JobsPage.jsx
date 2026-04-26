@@ -1,8 +1,10 @@
 import { useQuery } from "@apollo/client";
 import { Link } from "react-router-dom";
 import { GET_JOBS } from "../graphql/queries";
+import { useAuth } from "../context/AuthContext";
 
 export default function JobsPage() {
+  const { user } = useAuth();
   const { data, loading, error } = useQuery(GET_JOBS, {
     variables: { page: 1, limit: 20 },
   });
@@ -23,9 +25,11 @@ export default function JobsPage() {
         }}
       >
         <h1>Jobs ({total})</h1>
-        <Link to="/jobs/new" className="btn btn-primary">
-          Post a Job
-        </Link>
+        {user?.role === "TALENT_HUNTER" && (
+          <Link to="/jobs/new" className="btn btn-primary">
+            Post a Job
+          </Link>
+        )}
       </div>
       <div className="grid grid-2">
         {jobs.map((job) => (

@@ -203,6 +203,9 @@ export const APPLICATIONS_BY_JOB = gql`
         coverLetter
         resumeUrl
         createdAt
+        user {
+          name
+        }
       }
       total
     }
@@ -261,6 +264,10 @@ export const GET_ME = gql`
       phone
       bio
       companyId
+      company {
+        id
+        name
+      }
       skills
       resumeUrl
       subscription {
