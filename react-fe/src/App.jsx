@@ -1,16 +1,16 @@
-import { Routes, Route } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
-import Navbar from './components/Navbar';
-import HomePage from './pages/HomePage';
-import LoginPage from './pages/LoginPage';
-import RegisterPage from './pages/RegisterPage';
-import JobsPage from './pages/JobsPage';
-import JobDetailPage from './pages/JobDetailPage';
-import CreateJobPage from './pages/CreateJobPage';
-import CompaniesPage from './pages/CompaniesPage';
-import CompanyDetailPage from './pages/CompanyDetailPage';
-import DashboardPage from './pages/DashboardPage';
-import PricingPage from './pages/PricingPage';
+import { Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
+import Navbar from "./components/Navbar";
+import HomePage from "./pages/HomePage";
+import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
+import JobsPage from "./pages/JobsPage";
+import JobDetailPage from "./pages/JobDetailPage";
+import CreateJobPage from "./pages/CreateJobPage";
+import CompaniesPage from "./pages/CompaniesPage";
+import CompanyDetailPage from "./pages/CompanyDetailPage";
+import DashboardPage from "./pages/DashboardPage";
+import PricingPage from "./pages/PricingPage";
 
 export default function App() {
   return (

@@ -398,14 +398,22 @@ const resolvers = {
   Company: {
     async reviews(company) {
       try {
-        return companyClient.listReviews({ companyId: company.id, page: 1, limit: 10 });
+        return companyClient.listReviews({
+          companyId: company.id,
+          page: 1,
+          limit: 10,
+        });
       } catch {
         return { reviews: [], total: 0, averageRating: 0 };
       }
     },
     async averageRating(company) {
       try {
-        const res = await companyClient.listReviews({ companyId: company.id, page: 1, limit: 1 });
+        const res = await companyClient.listReviews({
+          companyId: company.id,
+          page: 1,
+          limit: 1,
+        });
         return res.averageRating || 0;
       } catch {
         return 0;

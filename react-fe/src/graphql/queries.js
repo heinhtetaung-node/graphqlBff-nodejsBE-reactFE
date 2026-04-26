@@ -226,6 +226,10 @@ export const GET_COMPANIES = gql`
         location
         employeeCount
         logoUrl
+        averageRating
+        reviews {
+          total
+        }
       }
       total
     }

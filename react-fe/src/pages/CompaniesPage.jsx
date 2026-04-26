@@ -20,7 +20,10 @@ export default function CompaniesPage() {
       <div className="grid grid-3">
         {companies.map((company) => (
           <div className="card" key={company.id}>
-            <Link to={`/companies/${company.id}`} style={{ textDecoration: "none", color: "inherit" }}>
+            <Link
+              to={`/companies/${company.id}`}
+              style={{ textDecoration: "none", color: "inherit" }}
+            >
               <h3>{company.name}</h3>
             </Link>
             <p style={{ color: "#666", fontSize: 14, marginBottom: 8 }}>
@@ -30,6 +33,37 @@ export default function CompaniesPage() {
             <p style={{ marginTop: 8, fontSize: 14, color: "#888" }}>
               {company.employeeCount} employees
             </p>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                marginTop: 8,
+              }}
+            >
+              <span style={{ color: "#f59e0b", fontSize: 18 }}>
+                {[1, 2, 3, 4, 5].map((s) => (
+                  <span
+                    key={s}
+                    style={{
+                      color:
+                        s <= Math.round(company.averageRating || 0)
+                          ? "#f59e0b"
+                          : "#d1d5db",
+                    }}
+                  >
+                    ★
+                  </span>
+                ))}
+              </span>
+              <span style={{ fontSize: 14, fontWeight: 600 }}>
+                {(company.averageRating || 0).toFixed(1)}
+              </span>
+              <span style={{ fontSize: 13, color: "#888" }}>
+                ({company.reviews?.total || 0}{" "}
+                {company.reviews?.total === 1 ? "review" : "reviews"})
+              </span>
+            </div>
             <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
               <Link
                 to={`/jobs?companyId=${company.id}`}

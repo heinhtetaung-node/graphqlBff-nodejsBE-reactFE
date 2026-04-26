@@ -48,7 +48,9 @@ test.describe("Reviews & Ratings", () => {
     await card.getByRole("link", { name: "Reviews" }).click();
 
     // Should be on company detail page
-    await expect(page.getByRole("heading", { name: COMPANY_NAME })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: COMPANY_NAME }),
+    ).toBeVisible();
     await expect(page.getByText("Reviews (0)")).toBeVisible();
     await expect(page.getByText("No reviews yet")).toBeVisible();
 
@@ -60,7 +62,9 @@ test.describe("Reviews & Ratings", () => {
   test("R2: JH submits a review with 4 stars", async ({ page }) => {
     await loginUser(page, JH_EMAIL);
     await page.goto(`/companies/${companyId}`);
-    await expect(page.getByRole("heading", { name: COMPANY_NAME })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: COMPANY_NAME }),
+    ).toBeVisible();
 
     // Should see the review form
     await expect(page.getByText("Write a Review")).toBeVisible();
@@ -94,7 +98,9 @@ test.describe("Reviews & Ratings", () => {
   test("R4: TH cannot see review form", async ({ page }) => {
     await loginUser(page, TH_EMAIL);
     await page.goto(`/companies/${companyId}`);
-    await expect(page.getByRole("heading", { name: COMPANY_NAME })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: COMPANY_NAME }),
+    ).toBeVisible();
     await expect(page.getByText("Write a Review")).not.toBeVisible();
     // But can see existing reviews
     await expect(page.getByText("Reviews (1)")).toBeVisible();
@@ -104,7 +110,9 @@ test.describe("Reviews & Ratings", () => {
     page,
   }) => {
     await page.goto(`/companies/${companyId}`);
-    await expect(page.getByRole("heading", { name: COMPANY_NAME })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: COMPANY_NAME }),
+    ).toBeVisible();
     await expect(page.getByText("Write a Review")).not.toBeVisible();
     await expect(page.getByText("Reviews (1)")).toBeVisible();
     await expect(page.getByText("Great company to work for!")).toBeVisible();

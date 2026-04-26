@@ -6,7 +6,13 @@ import { useAuth } from "../context/AuthContext";
 
 function StarRating({ value, onChange, readonly }) {
   return (
-    <div style={{ display: "flex", gap: 4, cursor: readonly ? "default" : "pointer" }}>
+    <div
+      style={{
+        display: "flex",
+        gap: 4,
+        cursor: readonly ? "default" : "pointer",
+      }}
+    >
       {[1, 2, 3, 4, 5].map((star) => (
         <span
           key={star}
@@ -32,18 +38,25 @@ export default function CompanyDetailPage() {
   });
   const company = companiesData?.companies?.companies?.find((c) => c.id === id);
 
-  const { data: reviewsData, loading, refetch } = useQuery(GET_REVIEWS, {
+  const {
+    data: reviewsData,
+    loading,
+    refetch,
+  } = useQuery(GET_REVIEWS, {
     variables: { companyId: id, page: 1, limit: 50 },
   });
 
-  const [createReview, { loading: submitting, error }] = useMutation(CREATE_REVIEW, {
-    onCompleted: () => {
-      setSubmitted(true);
-      setRating(0);
-      setComment("");
-      refetch();
+  const [createReview, { loading: submitting, error }] = useMutation(
+    CREATE_REVIEW,
+    {
+      onCompleted: () => {
+        setSubmitted(true);
+        setRating(0);
+        setComment("");
+        refetch();
+      },
     },
-  });
+  );
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -63,19 +76,34 @@ export default function CompanyDetailPage() {
           <p style={{ color: "#666" }}>
             {company.industry} • {company.location}
           </p>
-          {company.description && <p style={{ marginTop: 12 }}>{company.description}</p>}
-          <div style={{ display: "flex", gap: 24, marginTop: 12, color: "#555" }}>
-            {company.employeeCount > 0 && <span>{company.employeeCount} employees</span>}
+          {company.description && (
+            <p style={{ marginTop: 12 }}>{company.description}</p>
+          )}
+          <div
+            style={{ display: "flex", gap: 24, marginTop: 12, color: "#555" }}
+          >
+            {company.employeeCount > 0 && (
+              <span>{company.employeeCount} employees</span>
+            )}
             {company.website && (
               <a href={company.website} target="_blank" rel="noreferrer">
                 {company.website}
               </a>
             )}
           </div>
-          <div style={{ marginTop: 16, display: "flex", alignItems: "center", gap: 8 }}>
+          <div
+            style={{
+              marginTop: 16,
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+            }}
+          >
             <StarRating value={Math.round(averageRating)} readonly />
             <span style={{ fontWeight: 600 }}>{averageRating.toFixed(1)}</span>
-            <span style={{ color: "#666" }}>({totalReviews} {totalReviews === 1 ? "review" : "reviews"})</span>
+            <span style={{ color: "#666" }}>
+              ({totalReviews} {totalReviews === 1 ? "review" : "reviews"})
+            </span>
           </div>
           <Link
             to={`/jobs?companyId=${id}`}
@@ -118,7 +146,11 @@ export default function CompanyDetailPage() {
       {submitted && (
         <div
           className="card"
-          style={{ background: "#d4edda", textAlign: "center", marginBottom: 24 }}
+          style={{
+            background: "#d4edda",
+            textAlign: "center",
+            marginBottom: 24,
+          }}
         >
           <p style={{ fontWeight: 600, color: "#155724" }}>
             Review submitted successfully!
@@ -127,12 +159,12 @@ export default function CompanyDetailPage() {
       )}
 
       <div className="card">
-        <h3 style={{ marginBottom: 16 }}>
-          Reviews ({totalReviews})
-        </h3>
+        <h3 style={{ marginBottom: 16 }}>Reviews ({totalReviews})</h3>
         {loading && <p>Loading reviews...</p>}
         {reviews.length === 0 && !loading && (
-          <p style={{ color: "#666" }}>No reviews yet. Be the first to review!</p>
+          <p style={{ color: "#666" }}>
+            No reviews yet. Be the first to review!
+          </p>
         )}
         {reviews.map((review) => (
           <div
@@ -143,7 +175,13 @@ export default function CompanyDetailPage() {
               marginBottom: 16,
             }}
           >
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <StarRating value={review.rating} readonly />
                 <strong>{review.user?.name || "Anonymous"}</strong>

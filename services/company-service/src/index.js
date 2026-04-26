@@ -163,7 +163,10 @@ const handlers = {
     try {
       const { companyId, userId, rating, comment } = call.request;
       if (rating < 1 || rating > 5) {
-        return callback({ code: grpc.status.INVALID_ARGUMENT, message: "Rating must be between 1 and 5" });
+        return callback({
+          code: grpc.status.INVALID_ARGUMENT,
+          message: "Rating must be between 1 and 5",
+        });
       }
       const id = uuidv4();
       const [row] = await db("reviews")
@@ -172,7 +175,10 @@ const handlers = {
       callback(null, { review: toProtoReview(row) });
     } catch (err) {
       if (err.constraint === "reviews_company_id_user_id_unique") {
-        return callback({ code: grpc.status.ALREADY_EXISTS, message: "You have already reviewed this company" });
+        return callback({
+          code: grpc.status.ALREADY_EXISTS,
+          message: "You have already reviewed this company",
+        });
       }
       callback({ code: grpc.status.INTERNAL, message: err.message });
     }
@@ -182,7 +188,9 @@ const handlers = {
     try {
       const { companyId, page = 1, limit = 20 } = call.request;
       const offset = (page - 1) * limit;
-      const [{ count }] = await db("reviews").where("company_id", companyId).count();
+      const [{ count }] = await db("reviews")
+        .where("company_id", companyId)
+        .count();
       const rows = await db("reviews")
         .where("company_id", companyId)
         .orderBy("created_at", "desc")
@@ -191,7 +199,9 @@ const handlers = {
       const avgResult = await db("reviews")
         .where("company_id", companyId)
         .avg("rating as avg");
-      const averageRating = avgResult[0]?.avg ? parseFloat(avgResult[0].avg) : 0;
+      const averageRating = avgResult[0]?.avg
+        ? parseFloat(avgResult[0].avg)
+        : 0;
       callback(null, {
         reviews: rows.map(toProtoReview),
         total: parseInt(count),
