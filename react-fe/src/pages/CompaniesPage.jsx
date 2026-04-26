@@ -20,7 +20,9 @@ export default function CompaniesPage() {
       <div className="grid grid-3">
         {companies.map((company) => (
           <div className="card" key={company.id}>
-            <h3>{company.name}</h3>
+            <Link to={`/companies/${company.id}`} style={{ textDecoration: "none", color: "inherit" }}>
+              <h3>{company.name}</h3>
+            </Link>
             <p style={{ color: "#666", fontSize: 14, marginBottom: 8 }}>
               {company.industry} • {company.location}
             </p>
@@ -28,13 +30,22 @@ export default function CompaniesPage() {
             <p style={{ marginTop: 8, fontSize: 14, color: "#888" }}>
               {company.employeeCount} employees
             </p>
-            <Link
-              to={`/jobs?companyId=${company.id}`}
-              className="btn btn-primary"
-              style={{ marginTop: 12, display: "inline-block", fontSize: 14 }}
-            >
-              View Jobs
-            </Link>
+            <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
+              <Link
+                to={`/jobs?companyId=${company.id}`}
+                className="btn btn-primary"
+                style={{ display: "inline-block", fontSize: 14 }}
+              >
+                View Jobs
+              </Link>
+              <Link
+                to={`/companies/${company.id}`}
+                className="btn btn-secondary"
+                style={{ display: "inline-block", fontSize: 14 }}
+              >
+                Reviews
+              </Link>
+            </div>
           </div>
         ))}
       </div>

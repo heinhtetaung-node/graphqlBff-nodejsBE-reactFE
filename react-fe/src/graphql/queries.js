@@ -316,3 +316,35 @@ export const MY_SUBSCRIPTION = gql`
     }
   }
 `;
+
+export const GET_REVIEWS = gql`
+  query GetReviews($companyId: ID!, $page: Int, $limit: Int) {
+    reviews(companyId: $companyId, page: $page, limit: $limit) {
+      reviews {
+        id
+        companyId
+        userId
+        rating
+        comment
+        user {
+          id
+          name
+        }
+        createdAt
+      }
+      total
+      averageRating
+    }
+  }
+`;
+
+export const CREATE_REVIEW = gql`
+  mutation CreateReview($companyId: ID!, $rating: Int!, $comment: String) {
+    createReview(companyId: $companyId, rating: $rating, comment: $comment) {
+      id
+      rating
+      comment
+      createdAt
+    }
+  }
+`;

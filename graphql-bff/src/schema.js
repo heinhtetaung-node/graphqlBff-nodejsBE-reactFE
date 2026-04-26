@@ -9,8 +9,26 @@ const typeDefs = `#graphql
     location: String
     employeeCount: Int
     jobs: [Job!]
+    reviews: PaginatedReviews
+    averageRating: Float
     createdAt: String
     updatedAt: String
+  }
+
+  type Review {
+    id: ID!
+    companyId: ID!
+    userId: ID!
+    rating: Int!
+    comment: String
+    user: User
+    createdAt: String
+  }
+
+  type PaginatedReviews {
+    reviews: [Review!]!
+    total: Int!
+    averageRating: Float!
   }
 
   type Job {
@@ -118,6 +136,9 @@ const typeDefs = `#graphql
     company(id: ID!): Company
     companies(page: Int, limit: Int, industry: String): PaginatedCompanies!
 
+    # Reviews
+    reviews(companyId: ID!, page: Int, limit: Int): PaginatedReviews!
+
     # Jobs
     job(id: ID!): Job
     jobs(page: Int, limit: Int, jobType: String, experienceLevel: String, location: String, companyId: ID): PaginatedJobs!
@@ -150,6 +171,9 @@ const typeDefs = `#graphql
     createCompany(name: String!, description: String, website: String, industry: String, logoUrl: String, location: String, employeeCount: Int): Company!
     updateCompany(id: ID!, name: String, description: String, website: String, industry: String, logoUrl: String, location: String, employeeCount: Int): Company!
     deleteCompany(id: ID!): Boolean!
+
+    # Reviews
+    createReview(companyId: ID!, rating: Int!, comment: String): Review!
 
     # Jobs
     createJob(companyId: ID!, title: String!, description: String, location: String, salaryRange: String, jobType: String, experienceLevel: String, skills: [String!]): Job!

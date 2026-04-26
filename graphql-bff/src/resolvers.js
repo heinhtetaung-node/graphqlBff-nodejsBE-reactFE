@@ -46,6 +46,11 @@ const resolvers = {
       return companyClient.listCompanies({ page, limit, industry });
     },
 
+    // Reviews
+    async reviews(_, { companyId, page = 1, limit = 20 }) {
+      return companyClient.listReviews({ companyId, page, limit });
+    },
+
     // Jobs
     async job(_, { id }) {
       const res = await jobClient.getJob({ id });
@@ -178,6 +183,21 @@ const resolvers = {
     },
     async login(_, { email, password }) {
       return userClient.login({ email, password });
+    },
+
+    // Reviews — only JOB_HUNTERs can review
+    async createReview(_, { companyId, rating, comment }, context) {
+      const auth = requireRole(context, "JOB_HUNTER");
+      if (rating < 1 || rating > 5) {
+        throw new Error("Rating must be between 1 and 5");
+      }
+      const res = await companyClient.createReview({
+        companyId,
+        userId: auth.userId,
+        rating,
+        comment,
+      });
+      return res.review;
     },
 
     // Companies — only TALENT_HUNTERs can manage companies
@@ -368,6 +388,35 @@ const resolvers = {
     async user(app) {
       try {
         const res = await userClient.getUser({ id: app.userId });
+        return res.user;
+      } catch {
+        return null;
+      }
+    },
+  },
+
+  Company: {
+    async reviews(company) {
+      try {
+        return companyClient.listReviews({ companyId: company.id, page: 1, limit: 10 });
+      } catch {
+        return { reviews: [], total: 0, averageRating: 0 };
+      }
+    },
+    async averageRating(company) {
+      try {
+        const res = await companyClient.listReviews({ companyId: company.id, page: 1, limit: 1 });
+        return res.averageRating || 0;
+      } catch {
+        return 0;
+      }
+    },
+  },
+
+  Review: {
+    async user(review) {
+      try {
+        const res = await userClient.getUser({ id: review.userId });
         return res.user;
       } catch {
         return null;

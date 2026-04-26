@@ -35,6 +35,17 @@ function toProtoCompany(row) {
   };
 }
 
+function toProtoReview(row) {
+  return {
+    id: row.id,
+    companyId: row.company_id,
+    userId: row.user_id,
+    rating: row.rating,
+    comment: row.comment || "",
+    createdAt: row.created_at?.toISOString() || "",
+  };
+}
+
 const handlers = {
   async CreateCompany(call, callback) {
     try {
@@ -143,6 +154,49 @@ const handlers = {
     try {
       const deleted = await db("companies").where("id", call.request.id).del();
       callback(null, { success: deleted > 0 });
+    } catch (err) {
+      callback({ code: grpc.status.INTERNAL, message: err.message });
+    }
+  },
+
+  async CreateReview(call, callback) {
+    try {
+      const { companyId, userId, rating, comment } = call.request;
+      if (rating < 1 || rating > 5) {
+        return callback({ code: grpc.status.INVALID_ARGUMENT, message: "Rating must be between 1 and 5" });
+      }
+      const id = uuidv4();
+      const [row] = await db("reviews")
+        .insert({ id, company_id: companyId, user_id: userId, rating, comment })
+        .returning("*");
+      callback(null, { review: toProtoReview(row) });
+    } catch (err) {
+      if (err.constraint === "reviews_company_id_user_id_unique") {
+        return callback({ code: grpc.status.ALREADY_EXISTS, message: "You have already reviewed this company" });
+      }
+      callback({ code: grpc.status.INTERNAL, message: err.message });
+    }
+  },
+
+  async ListReviews(call, callback) {
+    try {
+      const { companyId, page = 1, limit = 20 } = call.request;
+      const offset = (page - 1) * limit;
+      const [{ count }] = await db("reviews").where("company_id", companyId).count();
+      const rows = await db("reviews")
+        .where("company_id", companyId)
+        .orderBy("created_at", "desc")
+        .limit(limit)
+        .offset(offset);
+      const avgResult = await db("reviews")
+        .where("company_id", companyId)
+        .avg("rating as avg");
+      const averageRating = avgResult[0]?.avg ? parseFloat(avgResult[0].avg) : 0;
+      callback(null, {
+        reviews: rows.map(toProtoReview),
+        total: parseInt(count),
+        averageRating,
+      });
     } catch (err) {
       callback({ code: grpc.status.INTERNAL, message: err.message });
     }
