@@ -19,7 +19,9 @@ test.describe.serial("Job Hunter", () => {
       email: JH_EMAIL,
     });
     await page.waitForURL("/dashboard");
-    await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Dashboard" }),
+    ).toBeVisible();
   });
 
   test("JH2 - Logout", async ({ page }) => {
@@ -30,7 +32,9 @@ test.describe.serial("Job Hunter", () => {
 
   test("JH3 - Login", async ({ page }) => {
     await loginUser(page, JH_EMAIL);
-    await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Dashboard" }),
+    ).toBeVisible();
     await expect(page.getByText(JH_NAME).first()).toBeVisible();
   });
 
@@ -73,8 +77,9 @@ test.describe.serial("Job Hunter", () => {
       await jobLink.click();
       await page.waitForURL(/\/jobs\/.+/);
       await page.getByText("Apply for this position").waitFor();
-      await field(page, "Cover Letter")
-        .fill("I am very interested in this position. E2E test application.");
+      await field(page, "Cover Letter").fill(
+        "I am very interested in this position. E2E test application.",
+      );
       await page.getByRole("button", { name: "Submit Application" }).click();
       await expect(
         page.getByText("Application submitted successfully"),
@@ -84,7 +89,9 @@ test.describe.serial("Job Hunter", () => {
 
   test("JH8 - View dashboard", async ({ page }) => {
     await loginUser(page, JH_EMAIL);
-    await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Dashboard" }),
+    ).toBeVisible();
     await expect(page.getByText("Profile")).toBeVisible();
     await expect(page.getByText("Subscription")).toBeVisible();
     await expect(page.getByText("My Applications")).toBeVisible();
@@ -96,16 +103,16 @@ test.describe.serial("Job Hunter", () => {
     const appSection = page.getByText("My Applications");
     await expect(appSection).toBeVisible();
     // Should see at least one application with a status badge
-    const badges = page.locator(
-      ".badge-yellow, .badge-green, .badge-red",
-    );
+    const badges = page.locator(".badge-yellow, .badge-green, .badge-red");
     // The user may or may not have applications, but the section should render
     await expect(page.getByText("My Applications")).toBeVisible();
   });
 
   test("JH10 - Browse companies", async ({ page }) => {
     await page.goto("/companies");
-    await expect(page.getByRole("heading", { name: /Companies/ })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: /Companies/ }),
+    ).toBeVisible();
   });
 
   test("JH11 - View jobs from company page", async ({ page }) => {

@@ -20,7 +20,9 @@ test.describe.serial("Talent Hunter", () => {
       email: TH_EMAIL,
       companyName: TH_COMPANY,
     });
-    await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Dashboard" }),
+    ).toBeVisible();
     await expect(page.getByText(TH_NAME).first()).toBeVisible();
   });
 
@@ -32,16 +34,22 @@ test.describe.serial("Talent Hunter", () => {
 
   test("TH3 - Login", async ({ page }) => {
     await loginUser(page, TH_EMAIL);
-    await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Dashboard" }),
+    ).toBeVisible();
   });
 
   test("TH4 - Post a job", async ({ page }) => {
     await loginUser(page, TH_EMAIL);
     await page.goto("/jobs/new");
-    await expect(page.getByRole("heading", { name: "Post a New Job" })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Post a New Job" }),
+    ).toBeVisible();
 
     await field(page, "Job Title").fill("E2E Test Engineer");
-    await field(page, "Description").fill("Automated testing position created by e2e test.");
+    await field(page, "Description").fill(
+      "Automated testing position created by e2e test.",
+    );
     await field(page, "Location").fill("Remote");
     await field(page, "Salary Range").fill("$80k - $120k");
     await field(page, "Job Type").selectOption("REMOTE");
@@ -50,17 +58,19 @@ test.describe.serial("Talent Hunter", () => {
 
     await page.getByRole("button", { name: "Post Job" }).click();
     await page.waitForURL("/jobs");
-    await expect(page.getByText("E2E Test Engineer")).toBeVisible();
+    await expect(page.getByText("E2E Test Engineer").first()).toBeVisible();
   });
 
   test("TH5 - View dashboard with posted jobs", async ({ page }) => {
     await loginUser(page, TH_EMAIL);
-    await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Dashboard" }),
+    ).toBeVisible();
     await expect(page.getByText("Profile")).toBeVisible();
     await expect(page.getByText("Subscription")).toBeVisible();
     await expect(page.getByText("Quick Actions")).toBeVisible();
     await expect(page.getByText("My Posted Jobs")).toBeVisible();
-    await expect(page.getByText("E2E Test Engineer")).toBeVisible();
+    await expect(page.getByText("E2E Test Engineer").first()).toBeVisible();
   });
 
   test("TH6 - View applications for a job", async ({ page }) => {
@@ -82,9 +92,7 @@ test.describe.serial("Talent Hunter", () => {
     await loginUser(page, TH_EMAIL);
     await page.goto("/jobs");
     await expect(page.getByRole("heading", { name: /Jobs/ })).toBeVisible();
-    await expect(
-      page.getByRole("link", { name: "Post a Job" }),
-    ).toBeVisible();
+    await expect(page.getByRole("link", { name: "Post a Job" })).toBeVisible();
   });
 
   test("TH8 - Filter jobs by company", async ({ page }) => {
@@ -93,9 +101,7 @@ test.describe.serial("Talent Hunter", () => {
     const companyFilter = page.locator("select");
     await expect(companyFilter.first()).toBeVisible();
     // Select own company
-    await companyFilter
-      .first()
-      .selectOption({ label: TH_COMPANY });
+    await companyFilter.first().selectOption({ label: TH_COMPANY });
     await expect(page.getByText("E2E Test Engineer")).toBeVisible();
     // Reset
     await companyFilter.first().selectOption("");
@@ -110,15 +116,15 @@ test.describe.serial("Talent Hunter", () => {
       await page.waitForURL(/\/jobs\/.+/);
       await expect(page.locator("h1")).toBeVisible();
       // TALENT_HUNTER should NOT see apply form
-      await expect(
-        page.getByText("Apply for this position"),
-      ).not.toBeVisible();
+      await expect(page.getByText("Apply for this position")).not.toBeVisible();
     }
   });
 
   test("TH10 - Browse companies", async ({ page }) => {
     await page.goto("/companies");
-    await expect(page.getByRole("heading", { name: /Companies/ })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: /Companies/ }),
+    ).toBeVisible();
     // Our company should appear
     await expect(page.getByText(TH_COMPANY)).toBeVisible();
   });

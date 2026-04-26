@@ -250,11 +250,11 @@ npx playwright test --debug
 
 ### Test Suites
 
-| Suite | File | Tests | Coverage |
-|-------|------|-------|----------|
-| Unauthenticated | `unauthenticated.spec.js` | 8 | Home, jobs, companies, pricing, login/register pages |
-| Job Hunter | `job-hunter.spec.js` | 14 | Register, login, browse/filter/apply jobs, dashboard, subscribe |
-| Talent Hunter | `talent-hunter.spec.js` | 12 | Register + company, post job, dashboard, view applications |
-| Cross-Role | `cross-role.spec.js` | 5 | TH posts job → JH applies → TH sees application, company filter |
+| Suite           | File                      | Tests | Coverage                                                        |
+| --------------- | ------------------------- | ----- | --------------------------------------------------------------- |
+| Unauthenticated | `unauthenticated.spec.js` | 8     | Home, jobs, companies, pricing, login/register pages            |
+| Job Hunter      | `job-hunter.spec.js`      | 14    | Register, login, browse/filter/apply jobs, dashboard, subscribe |
+| Talent Hunter   | `talent-hunter.spec.js`   | 12    | Register + company, post job, dashboard, view applications      |
+| Cross-Role      | `cross-role.spec.js`      | 5     | TH posts job → JH applies → TH sees application, company filter |
 
 > **Note:** Tests run against `http://127.0.0.1:3001` (Vite dev server). Make sure Docker services are up before running.

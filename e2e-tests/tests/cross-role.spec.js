@@ -60,8 +60,9 @@ test.describe.serial("Cross-Role Interaction", () => {
     await page.getByText(JOB_TITLE).click();
     await page.waitForURL(/\/jobs\/.+/);
     await page.getByText("Apply for this position").waitFor();
-    await field(page, "Cover Letter")
-      .fill("Cross-role e2e test application from job hunter.");
+    await field(page, "Cover Letter").fill(
+      "Cross-role e2e test application from job hunter.",
+    );
     await page.getByRole("button", { name: "Submit Application" }).click();
     await expect(
       page.getByText("Application submitted successfully"),
@@ -76,7 +77,10 @@ test.describe.serial("Cross-Role Interaction", () => {
     await expect(page.getByText(JOB_TITLE)).toBeVisible();
 
     // Expand applications
-    await page.getByRole("button", { name: "View Applications" }).first().click();
+    await page
+      .getByRole("button", { name: "View Applications" })
+      .first()
+      .click();
     // Should see the job hunter's name
     await expect(page.getByText(JH_NAME)).toBeVisible({ timeout: 10000 });
   });
