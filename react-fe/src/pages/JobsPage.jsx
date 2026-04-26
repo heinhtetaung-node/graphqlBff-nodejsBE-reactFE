@@ -1,18 +1,28 @@
 import { useState } from "react";
 import { useQuery } from "@apollo/client";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { GET_JOBS, GET_COMPANIES } from "../graphql/queries";
 import { useAuth } from "../context/AuthContext";
 
 export default function JobsPage() {
   const { user } = useAuth();
-  const [companyId, setCompanyId] = useState("");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [companyId, setCompanyId] = useState(
+    searchParams.get("companyId") || "",
+  );
   const { data, loading, error } = useQuery(GET_JOBS, {
     variables: { page: 1, limit: 20, companyId: companyId || undefined },
   });
   const { data: companiesData } = useQuery(GET_COMPANIES, {
     variables: { page: 1, limit: 100 },
   });
+
+  const handleCompanyChange = (e) => {
+    const val = e.target.value;
+    setCompanyId(val);
+    if (val) setSearchParams({ companyId: val });
+    else setSearchParams({});
+  };
 
   if (loading) return <div className="loading">Loading jobs...</div>;
   if (error) return <div className="error">Error: {error.message}</div>;
@@ -33,7 +43,7 @@ export default function JobsPage() {
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
           <select
             value={companyId}
-            onChange={(e) => setCompanyId(e.target.value)}
+            onChange={handleCompanyChange}
             style={{
               padding: "6px 12px",
               borderRadius: 4,
