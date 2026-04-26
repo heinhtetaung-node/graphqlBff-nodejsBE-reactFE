@@ -10,8 +10,10 @@ export default function JobsPage() {
   const [companyId, setCompanyId] = useState(
     searchParams.get("companyId") || "",
   );
+  const [page, setPage] = useState(1);
+  const limit = 10;
   const { data, loading, error } = useQuery(GET_JOBS, {
-    variables: { page: 1, limit: 20, companyId: companyId || undefined },
+    variables: { page, limit, companyId: companyId || undefined },
   });
   const { data: companiesData } = useQuery(GET_COMPANIES, {
     variables: { page: 1, limit: 100 },
@@ -20,6 +22,7 @@ export default function JobsPage() {
   const handleCompanyChange = (e) => {
     const val = e.target.value;
     setCompanyId(val);
+    setPage(1);
     if (val) setSearchParams({ companyId: val });
     else setSearchParams({});
   };
@@ -121,6 +124,25 @@ export default function JobsPage() {
         <p style={{ textAlign: "center", color: "#666", padding: 40 }}>
           No jobs posted yet.
         </p>
+      )}
+      {total > limit && (
+        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 16, marginTop: 24 }}>
+          <button
+            className="btn btn-secondary"
+            disabled={page <= 1}
+            onClick={() => setPage((p) => p - 1)}
+          >
+            Previous
+          </button>
+          <span>Page {page} of {Math.ceil(total / limit)}</span>
+          <button
+            className="btn btn-secondary"
+            disabled={page >= Math.ceil(total / limit)}
+            onClick={() => setPage((p) => p + 1)}
+          >
+            Next
+          </button>
+        </div>
       )}
     </div>
   );

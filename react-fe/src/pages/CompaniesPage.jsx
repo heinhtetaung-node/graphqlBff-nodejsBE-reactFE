@@ -1,10 +1,13 @@
+import { useState } from "react";
 import { useQuery } from "@apollo/client";
 import { Link } from "react-router-dom";
 import { GET_COMPANIES } from "../graphql/queries";
 
 export default function CompaniesPage() {
+  const [page, setPage] = useState(1);
+  const limit = 12;
   const { data, loading, error } = useQuery(GET_COMPANIES, {
-    variables: { page: 1, limit: 20 },
+    variables: { page, limit },
   });
 
   if (loading) return <div className="loading">Loading companies...</div>;
@@ -87,6 +90,25 @@ export default function CompaniesPage() {
         <p style={{ textAlign: "center", color: "#666", padding: 40 }}>
           No companies yet.
         </p>
+      )}
+      {total > limit && (
+        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 16, marginTop: 24 }}>
+          <button
+            className="btn btn-secondary"
+            disabled={page <= 1}
+            onClick={() => setPage((p) => p - 1)}
+          >
+            Previous
+          </button>
+          <span>Page {page} of {Math.ceil(total / limit)}</span>
+          <button
+            className="btn btn-secondary"
+            disabled={page >= Math.ceil(total / limit)}
+            onClick={() => setPage((p) => p + 1)}
+          >
+            Next
+          </button>
+        </div>
       )}
     </div>
   );
