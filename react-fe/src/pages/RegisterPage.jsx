@@ -142,14 +142,6 @@ export default function RegisterPage() {
             >
               {companyLoading ? "Creating company..." : "Create Company"}
             </button>
-            <button
-              type="button"
-              className="btn"
-              style={{ width: "100%", marginTop: 8 }}
-              onClick={() => navigate("/dashboard")}
-            >
-              Skip for now
-            </button>
           </form>
         </div>
       </div>
