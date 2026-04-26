@@ -13,7 +13,7 @@ export default defineConfig({
     trace: "on-first-retry",
     headless: true,
     screenshot: "only-on-failure",
-    launchOptions: { slowMo: 1000 },
+    launchOptions: { slowMo: 500 },
   },
   projects: [
     {
