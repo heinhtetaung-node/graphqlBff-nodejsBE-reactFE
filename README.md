@@ -215,6 +215,46 @@ graphql-bff/                   # Apollo Server → all gRPC services
 react-fe/                      # React + Vite SPA
 docker-compose.yml             # Production stack
 docker-compose.dev.yml         # Dev overrides (hot-reload)
+e2e-tests/                     # Playwright end-to-end tests
 k8s/                           # Kubernetes manifests
 .github/workflows/ci.yml       # CI/CD pipeline
 ```
+
+## E2E Tests (Playwright)
+
+End-to-end tests covering all user flows for unauthenticated users, job hunters, and talent hunters.
+
+### Setup
+
+```bash
+cd e2e-tests
+npm install
+npx playwright install chromium
+```
+
+### Run
+
+```bash
+# Headless (CI-friendly)
+npx playwright test
+
+# With Playwright UI (interactive test runner)
+npx playwright test --ui
+
+# With visible browser
+npx playwright test --headed
+
+# Step-through debugger
+npx playwright test --debug
+```
+
+### Test Suites
+
+| Suite | File | Tests | Coverage |
+|-------|------|-------|----------|
+| Unauthenticated | `unauthenticated.spec.js` | 8 | Home, jobs, companies, pricing, login/register pages |
+| Job Hunter | `job-hunter.spec.js` | 14 | Register, login, browse/filter/apply jobs, dashboard, subscribe |
+| Talent Hunter | `talent-hunter.spec.js` | 12 | Register + company, post job, dashboard, view applications |
+| Cross-Role | `cross-role.spec.js` | 5 | TH posts job → JH applies → TH sees application, company filter |
+
+> **Note:** Tests run against `http://127.0.0.1:3001` (Vite dev server). Make sure Docker services are up before running.
