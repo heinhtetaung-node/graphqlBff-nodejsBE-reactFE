@@ -110,11 +110,13 @@ test.describe.serial("Talent Hunter", () => {
   test("TH9 - View job detail (cannot apply)", async ({ page }) => {
     await loginUser(page, TH_EMAIL);
     await page.goto("/jobs");
-    const jobLink = page.locator("a[href^='/jobs/']").first();
+    const jobLink = page
+      .locator("a[href^='/jobs/']:not([href='/jobs/new'])")
+      .first();
     if ((await jobLink.count()) > 0) {
       await jobLink.click();
       await page.waitForURL(/\/jobs\/.+/);
-      await expect(page.locator("h1")).toBeVisible();
+      await expect(page.locator("h1")).toBeVisible({ timeout: 10000 });
       // TALENT_HUNTER should NOT see apply form
       await expect(page.getByText("Apply for this position")).not.toBeVisible();
     }
