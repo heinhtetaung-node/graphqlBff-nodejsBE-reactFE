@@ -340,8 +340,18 @@ export const GET_REVIEWS = gql`
 `;
 
 export const CREATE_REVIEW = gql`
-  mutation CreateReview($companyId: ID!, $rating: Int!, $comment: String, $positionTitle: String) {
-    createReview(companyId: $companyId, rating: $rating, comment: $comment, positionTitle: $positionTitle) {
+  mutation CreateReview(
+    $companyId: ID!
+    $rating: Int!
+    $comment: String
+    $positionTitle: String
+  ) {
+    createReview(
+      companyId: $companyId
+      rating: $rating
+      comment: $comment
+      positionTitle: $positionTitle
+    ) {
       id
       rating
       comment

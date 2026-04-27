@@ -92,7 +92,15 @@ export default function CompaniesPage() {
         </p>
       )}
       {total > limit && (
-        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 16, marginTop: 24 }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: 16,
+            marginTop: 24,
+          }}
+        >
           <button
             className="btn btn-secondary"
             disabled={page <= 1}
@@ -100,7 +108,9 @@ export default function CompaniesPage() {
           >
             Previous
           </button>
-          <span>Page {page} of {Math.ceil(total / limit)}</span>
+          <span>
+            Page {page} of {Math.ceil(total / limit)}
+          </span>
           <button
             className="btn btn-secondary"
             disabled={page >= Math.ceil(total / limit)}

@@ -7,42 +7,42 @@ services:
       - ./services/company-service/src:/app/src
       - ./protos:/protos:ro
       - ./shared:/shared:ro
-    command: ["sh", "-c", "node src/migrate.js && npx nodemon --watch src --watch /shared --watch /protos src/index.js"]
+    command: ["sh", "-c", "npx tsx src/migrate.ts && npx tsx --watch src/server.ts"]
 
   job-service:
     volumes:
       - ./services/job-service/src:/app/src
       - ./protos:/protos:ro
       - ./shared:/shared:ro
-    command: ["sh", "-c", "node src/migrate.js && npx nodemon --watch src --watch /shared --watch /protos src/index.js"]
+    command: ["sh", "-c", "npx tsx src/migrate.ts && npx tsx --watch src/server.ts"]
 
   user-service:
     volumes:
       - ./services/user-service/src:/app/src
       - ./protos:/protos:ro
       - ./shared:/shared:ro
-    command: ["sh", "-c", "node src/migrate.js && npx nodemon --watch src --watch /shared --watch /protos src/index.js"]
+    command: ["sh", "-c", "npx tsx src/migrate.ts && npx tsx --watch src/server.ts"]
 
   subscription-service:
     volumes:
       - ./services/subscription-service/src:/app/src
       - ./protos:/protos:ro
       - ./shared:/shared:ro
-    command: ["sh", "-c", "node src/migrate.js && npx nodemon --watch src --watch /shared --watch /protos src/index.js"]
+    command: ["sh", "-c", "npx tsx src/migrate.ts && npx tsx --watch src/server.ts"]
 
   graphql-bff:
     volumes:
       - ./graphql-bff/src:/app/src
       - ./protos:/protos:ro
       - ./shared:/shared:ro
-    command: ["npx", "nodemon", "--watch", "src", "--watch", "/shared", "src/index.js"]
+    command: ["npx", "tsx", "--watch", "src/server.ts"]
 
   document-service:
     volumes:
       - ./services/document-service/src:/app/src
       - ./shared:/shared:ro
       - doc-uploads:/app/uploads
-    command: ["npx", "nodemon", "--watch", "src", "--watch", "/shared", "src/index.js"]
+    command: ["npx", "tsx", "--watch", "src/server.ts"]
 
   react-fe:
     build:

@@ -63,7 +63,14 @@ export default function CompanyDetailPage() {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (rating < 1) return;
-    createReview({ variables: { companyId: id, rating, comment, positionTitle: positionTitle || undefined } });
+    createReview({
+      variables: {
+        companyId: id,
+        rating,
+        comment,
+        positionTitle: positionTitle || undefined,
+      },
+    });
   };
 
   const reviews = reviewsData?.reviews?.reviews || [];

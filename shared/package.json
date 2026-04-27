@@ -10,8 +10,13 @@
     "@opentelemetry/resources": "^1.23.0",
     "@opentelemetry/sdk-node": "^0.50.0",
     "@opentelemetry/semantic-conventions": "^1.23.0",
+    "knex": "^3.1.0",
     "nats": "^2.19.0",
     "pino": "^9.0.0",
     "pino-pretty": "^11.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "@types/node": "^20.11.0"
   }
 }

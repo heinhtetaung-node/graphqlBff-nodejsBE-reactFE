@@ -88,7 +88,9 @@ test.describe("Reviews & Ratings", () => {
     // Review should appear
     await expect(page.getByText("Reviews (1)")).toBeVisible();
     await expect(page.getByText("Great company to work for!")).toBeVisible();
-    await expect(page.locator("strong", { hasText: "Software Engineer" })).toBeVisible();
+    await expect(
+      page.locator("strong", { hasText: "Software Engineer" }),
+    ).toBeVisible();
   });
 
   test("R3: Average rating shows on company detail", async ({ page }) => {

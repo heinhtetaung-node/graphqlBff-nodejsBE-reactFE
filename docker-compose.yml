@@ -37,7 +37,7 @@ services:
     volumes:
       - ./protos:/protos:ro
       - ./shared:/shared:ro
-    command: ["sh", "-c", "node src/migrate.js && node src/index.js"]
+    command: ["sh", "-c", "npx tsx src/migrate.ts && npx tsx src/server.ts"]
 
   job-service:
     build:
@@ -56,7 +56,7 @@ services:
     volumes:
       - ./protos:/protos:ro
       - ./shared:/shared:ro
-    command: ["sh", "-c", "node src/migrate.js && node src/index.js"]
+    command: ["sh", "-c", "npx tsx src/migrate.ts && npx tsx src/server.ts"]
 
   user-service:
     build:
@@ -76,7 +76,7 @@ services:
     volumes:
       - ./protos:/protos:ro
       - ./shared:/shared:ro
-    command: ["sh", "-c", "node src/migrate.js && node src/index.js"]
+    command: ["sh", "-c", "npx tsx src/migrate.ts && npx tsx src/server.ts"]
 
   subscription-service:
     build:
@@ -95,7 +95,7 @@ services:
     volumes:
       - ./protos:/protos:ro
       - ./shared:/shared:ro
-    command: ["sh", "-c", "node src/migrate.js && node src/index.js"]
+    command: ["sh", "-c", "npx tsx src/migrate.ts && npx tsx src/server.ts"]
 
   # ---------- GraphQL BFF ----------
   graphql-bff:
