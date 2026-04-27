@@ -20,7 +20,7 @@ export default function CompaniesPage() {
       <div className="page-header">
         <h1>Companies ({total})</h1>
       </div>
-      <div className="grid grid-3">
+      <div className="grid grid-2">
         {companies.map((company) => (
           <div className="card" key={company.id}>
             <Link
