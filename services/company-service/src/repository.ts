@@ -3,11 +3,14 @@ import { v4 as uuidv4 } from "uuid";
 import type {
   Company,
   Review,
+  InterviewExperience,
   CreateCompanyRequest,
   ListCompaniesRequest,
   UpdateCompanyRequest,
   CreateReviewRequest,
   ListReviewsRequest,
+  CreateInterviewExperienceRequest,
+  ListInterviewExperiencesRequest,
 } from "../../../shared/proto-types/company";
 
 // ── DB Row Types ──
@@ -32,6 +35,18 @@ interface ReviewRow {
   rating: number;
   comment: string | null;
   position_title: string | null;
+  created_at: Date;
+}
+
+interface InterviewExperienceRow {
+  id: string;
+  company_id: string;
+  user_id: string;
+  position_title: string;
+  difficulty: number;
+  result: string | null;
+  description: string | null;
+  interview_date: Date | null;
   created_at: Date;
 }
 
@@ -61,6 +76,20 @@ function toProtoReview(row: ReviewRow): Review {
     comment: row.comment ?? "",
     createdAt: row.created_at?.toISOString() ?? "",
     positionTitle: row.position_title ?? "",
+  };
+}
+
+function toProtoInterviewExperience(row: InterviewExperienceRow): InterviewExperience {
+  return {
+    id: row.id,
+    companyId: row.company_id,
+    userId: row.user_id,
+    positionTitle: row.position_title,
+    difficulty: row.difficulty,
+    result: row.result ?? "",
+    description: row.description ?? "",
+    interviewDate: row.interview_date ? row.interview_date.toISOString().split("T")[0] : "",
+    createdAt: row.created_at?.toISOString() ?? "",
   };
 }
 
@@ -180,6 +209,54 @@ export class ReviewRepository {
       reviews: rows.map(toProtoReview),
       total: parseInt(count as string, 10),
       averageRating: avgResult?.avg ? parseFloat(avgResult.avg as string) : 0,
+    };
+  }
+}
+
+export class InterviewExperienceRepository {
+  constructor(private readonly db: Knex) {}
+
+  async create(data: CreateInterviewExperienceRequest): Promise<InterviewExperience> {
+    const id = uuidv4();
+    const [row] = await this.db<InterviewExperienceRow>("interview_experiences")
+      .insert({
+        id,
+        company_id: data.companyId,
+        user_id: data.userId,
+        position_title: data.positionTitle,
+        difficulty: data.difficulty,
+        result: data.result || null,
+        description: data.description || null,
+        interview_date: data.interviewDate || null,
+      })
+      .returning("*");
+    return toProtoInterviewExperience(row);
+  }
+
+  async list(params: ListInterviewExperiencesRequest): Promise<{
+    interviewExperiences: InterviewExperience[];
+    total: number;
+    averageDifficulty: number;
+  }> {
+    const { companyId, page = 1, limit = 20 } = params;
+    const offset = (page - 1) * limit;
+
+    const [{ count }] = await this.db("interview_experiences")
+      .where("company_id", companyId)
+      .count();
+    const rows = await this.db<InterviewExperienceRow>("interview_experiences")
+      .where("company_id", companyId)
+      .orderBy("created_at", "desc")
+      .limit(limit)
+      .offset(offset);
+    const [avgResult] = await this.db("interview_experiences")
+      .where("company_id", companyId)
+      .avg("difficulty as avg");
+
+    return {
+      interviewExperiences: rows.map(toProtoInterviewExperience),
+      total: parseInt(count as string, 10),
+      averageDifficulty: avgResult?.avg ? parseFloat(avgResult.avg as string) : 0,
     };
   }
 }

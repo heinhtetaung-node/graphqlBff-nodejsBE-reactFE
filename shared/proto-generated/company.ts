@@ -116,6 +116,44 @@ export interface ListReviewsResponse {
   averageRating: number;
 }
 
+export interface InterviewExperience {
+  id: string;
+  companyId: string;
+  userId: string;
+  positionTitle: string;
+  difficulty: number;
+  result: string;
+  description: string;
+  interviewDate: string;
+  createdAt: string;
+}
+
+export interface CreateInterviewExperienceRequest {
+  companyId: string;
+  userId: string;
+  positionTitle: string;
+  difficulty: number;
+  result: string;
+  description: string;
+  interviewDate: string;
+}
+
+export interface InterviewExperienceResponse {
+  interviewExperience: InterviewExperience | undefined;
+}
+
+export interface ListInterviewExperiencesRequest {
+  companyId: string;
+  page: number;
+  limit: number;
+}
+
+export interface ListInterviewExperiencesResponse {
+  interviewExperiences: InterviewExperience[];
+  total: number;
+  averageDifficulty: number;
+}
+
 function createBaseCompany(): Company {
   return {
     id: "",
@@ -1655,6 +1693,676 @@ export const ListReviewsResponse: MessageFns<ListReviewsResponse> = {
   },
 };
 
+function createBaseInterviewExperience(): InterviewExperience {
+  return {
+    id: "",
+    companyId: "",
+    userId: "",
+    positionTitle: "",
+    difficulty: 0,
+    result: "",
+    description: "",
+    interviewDate: "",
+    createdAt: "",
+  };
+}
+
+export const InterviewExperience: MessageFns<InterviewExperience> = {
+  encode(message: InterviewExperience, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
+    }
+    if (message.companyId !== "") {
+      writer.uint32(18).string(message.companyId);
+    }
+    if (message.userId !== "") {
+      writer.uint32(26).string(message.userId);
+    }
+    if (message.positionTitle !== "") {
+      writer.uint32(34).string(message.positionTitle);
+    }
+    if (message.difficulty !== 0) {
+      writer.uint32(40).int32(message.difficulty);
+    }
+    if (message.result !== "") {
+      writer.uint32(50).string(message.result);
+    }
+    if (message.description !== "") {
+      writer.uint32(58).string(message.description);
+    }
+    if (message.interviewDate !== "") {
+      writer.uint32(66).string(message.interviewDate);
+    }
+    if (message.createdAt !== "") {
+      writer.uint32(74).string(message.createdAt);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): InterviewExperience {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseInterviewExperience();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.id = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.companyId = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.userId = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.positionTitle = reader.string();
+          continue;
+        }
+        case 5: {
+          if (tag !== 40) {
+            break;
+          }
+
+          message.difficulty = reader.int32();
+          continue;
+        }
+        case 6: {
+          if (tag !== 50) {
+            break;
+          }
+
+          message.result = reader.string();
+          continue;
+        }
+        case 7: {
+          if (tag !== 58) {
+            break;
+          }
+
+          message.description = reader.string();
+          continue;
+        }
+        case 8: {
+          if (tag !== 66) {
+            break;
+          }
+
+          message.interviewDate = reader.string();
+          continue;
+        }
+        case 9: {
+          if (tag !== 74) {
+            break;
+          }
+
+          message.createdAt = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): InterviewExperience {
+    return {
+      id: isSet(object.id) ? globalThis.String(object.id) : "",
+      companyId: isSet(object.companyId)
+        ? globalThis.String(object.companyId)
+        : isSet(object.company_id)
+        ? globalThis.String(object.company_id)
+        : "",
+      userId: isSet(object.userId)
+        ? globalThis.String(object.userId)
+        : isSet(object.user_id)
+        ? globalThis.String(object.user_id)
+        : "",
+      positionTitle: isSet(object.positionTitle)
+        ? globalThis.String(object.positionTitle)
+        : isSet(object.position_title)
+        ? globalThis.String(object.position_title)
+        : "",
+      difficulty: isSet(object.difficulty) ? globalThis.Number(object.difficulty) : 0,
+      result: isSet(object.result) ? globalThis.String(object.result) : "",
+      description: isSet(object.description) ? globalThis.String(object.description) : "",
+      interviewDate: isSet(object.interviewDate)
+        ? globalThis.String(object.interviewDate)
+        : isSet(object.interview_date)
+        ? globalThis.String(object.interview_date)
+        : "",
+      createdAt: isSet(object.createdAt)
+        ? globalThis.String(object.createdAt)
+        : isSet(object.created_at)
+        ? globalThis.String(object.created_at)
+        : "",
+    };
+  },
+
+  toJSON(message: InterviewExperience): unknown {
+    const obj: any = {};
+    if (message.id !== "") {
+      obj.id = message.id;
+    }
+    if (message.companyId !== "") {
+      obj.companyId = message.companyId;
+    }
+    if (message.userId !== "") {
+      obj.userId = message.userId;
+    }
+    if (message.positionTitle !== "") {
+      obj.positionTitle = message.positionTitle;
+    }
+    if (message.difficulty !== 0) {
+      obj.difficulty = Math.round(message.difficulty);
+    }
+    if (message.result !== "") {
+      obj.result = message.result;
+    }
+    if (message.description !== "") {
+      obj.description = message.description;
+    }
+    if (message.interviewDate !== "") {
+      obj.interviewDate = message.interviewDate;
+    }
+    if (message.createdAt !== "") {
+      obj.createdAt = message.createdAt;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<InterviewExperience>, I>>(base?: I): InterviewExperience {
+    return InterviewExperience.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<InterviewExperience>, I>>(object: I): InterviewExperience {
+    const message = createBaseInterviewExperience();
+    message.id = object.id ?? "";
+    message.companyId = object.companyId ?? "";
+    message.userId = object.userId ?? "";
+    message.positionTitle = object.positionTitle ?? "";
+    message.difficulty = object.difficulty ?? 0;
+    message.result = object.result ?? "";
+    message.description = object.description ?? "";
+    message.interviewDate = object.interviewDate ?? "";
+    message.createdAt = object.createdAt ?? "";
+    return message;
+  },
+};
+
+function createBaseCreateInterviewExperienceRequest(): CreateInterviewExperienceRequest {
+  return {
+    companyId: "",
+    userId: "",
+    positionTitle: "",
+    difficulty: 0,
+    result: "",
+    description: "",
+    interviewDate: "",
+  };
+}
+
+export const CreateInterviewExperienceRequest: MessageFns<CreateInterviewExperienceRequest> = {
+  encode(message: CreateInterviewExperienceRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.companyId !== "") {
+      writer.uint32(10).string(message.companyId);
+    }
+    if (message.userId !== "") {
+      writer.uint32(18).string(message.userId);
+    }
+    if (message.positionTitle !== "") {
+      writer.uint32(26).string(message.positionTitle);
+    }
+    if (message.difficulty !== 0) {
+      writer.uint32(32).int32(message.difficulty);
+    }
+    if (message.result !== "") {
+      writer.uint32(42).string(message.result);
+    }
+    if (message.description !== "") {
+      writer.uint32(50).string(message.description);
+    }
+    if (message.interviewDate !== "") {
+      writer.uint32(58).string(message.interviewDate);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): CreateInterviewExperienceRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseCreateInterviewExperienceRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.companyId = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.userId = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.positionTitle = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 32) {
+            break;
+          }
+
+          message.difficulty = reader.int32();
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.result = reader.string();
+          continue;
+        }
+        case 6: {
+          if (tag !== 50) {
+            break;
+          }
+
+          message.description = reader.string();
+          continue;
+        }
+        case 7: {
+          if (tag !== 58) {
+            break;
+          }
+
+          message.interviewDate = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): CreateInterviewExperienceRequest {
+    return {
+      companyId: isSet(object.companyId)
+        ? globalThis.String(object.companyId)
+        : isSet(object.company_id)
+        ? globalThis.String(object.company_id)
+        : "",
+      userId: isSet(object.userId)
+        ? globalThis.String(object.userId)
+        : isSet(object.user_id)
+        ? globalThis.String(object.user_id)
+        : "",
+      positionTitle: isSet(object.positionTitle)
+        ? globalThis.String(object.positionTitle)
+        : isSet(object.position_title)
+        ? globalThis.String(object.position_title)
+        : "",
+      difficulty: isSet(object.difficulty) ? globalThis.Number(object.difficulty) : 0,
+      result: isSet(object.result) ? globalThis.String(object.result) : "",
+      description: isSet(object.description) ? globalThis.String(object.description) : "",
+      interviewDate: isSet(object.interviewDate)
+        ? globalThis.String(object.interviewDate)
+        : isSet(object.interview_date)
+        ? globalThis.String(object.interview_date)
+        : "",
+    };
+  },
+
+  toJSON(message: CreateInterviewExperienceRequest): unknown {
+    const obj: any = {};
+    if (message.companyId !== "") {
+      obj.companyId = message.companyId;
+    }
+    if (message.userId !== "") {
+      obj.userId = message.userId;
+    }
+    if (message.positionTitle !== "") {
+      obj.positionTitle = message.positionTitle;
+    }
+    if (message.difficulty !== 0) {
+      obj.difficulty = Math.round(message.difficulty);
+    }
+    if (message.result !== "") {
+      obj.result = message.result;
+    }
+    if (message.description !== "") {
+      obj.description = message.description;
+    }
+    if (message.interviewDate !== "") {
+      obj.interviewDate = message.interviewDate;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<CreateInterviewExperienceRequest>, I>>(
+    base?: I,
+  ): CreateInterviewExperienceRequest {
+    return CreateInterviewExperienceRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CreateInterviewExperienceRequest>, I>>(
+    object: I,
+  ): CreateInterviewExperienceRequest {
+    const message = createBaseCreateInterviewExperienceRequest();
+    message.companyId = object.companyId ?? "";
+    message.userId = object.userId ?? "";
+    message.positionTitle = object.positionTitle ?? "";
+    message.difficulty = object.difficulty ?? 0;
+    message.result = object.result ?? "";
+    message.description = object.description ?? "";
+    message.interviewDate = object.interviewDate ?? "";
+    return message;
+  },
+};
+
+function createBaseInterviewExperienceResponse(): InterviewExperienceResponse {
+  return { interviewExperience: undefined };
+}
+
+export const InterviewExperienceResponse: MessageFns<InterviewExperienceResponse> = {
+  encode(message: InterviewExperienceResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.interviewExperience !== undefined) {
+      InterviewExperience.encode(message.interviewExperience, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): InterviewExperienceResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseInterviewExperienceResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.interviewExperience = InterviewExperience.decode(reader, reader.uint32());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): InterviewExperienceResponse {
+    return {
+      interviewExperience: isSet(object.interviewExperience)
+        ? InterviewExperience.fromJSON(object.interviewExperience)
+        : isSet(object.interview_experience)
+        ? InterviewExperience.fromJSON(object.interview_experience)
+        : undefined,
+    };
+  },
+
+  toJSON(message: InterviewExperienceResponse): unknown {
+    const obj: any = {};
+    if (message.interviewExperience !== undefined) {
+      obj.interviewExperience = InterviewExperience.toJSON(message.interviewExperience);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<InterviewExperienceResponse>, I>>(base?: I): InterviewExperienceResponse {
+    return InterviewExperienceResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<InterviewExperienceResponse>, I>>(object: I): InterviewExperienceResponse {
+    const message = createBaseInterviewExperienceResponse();
+    message.interviewExperience = (object.interviewExperience !== undefined && object.interviewExperience !== null)
+      ? InterviewExperience.fromPartial(object.interviewExperience)
+      : undefined;
+    return message;
+  },
+};
+
+function createBaseListInterviewExperiencesRequest(): ListInterviewExperiencesRequest {
+  return { companyId: "", page: 0, limit: 0 };
+}
+
+export const ListInterviewExperiencesRequest: MessageFns<ListInterviewExperiencesRequest> = {
+  encode(message: ListInterviewExperiencesRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.companyId !== "") {
+      writer.uint32(10).string(message.companyId);
+    }
+    if (message.page !== 0) {
+      writer.uint32(16).int32(message.page);
+    }
+    if (message.limit !== 0) {
+      writer.uint32(24).int32(message.limit);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ListInterviewExperiencesRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseListInterviewExperiencesRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.companyId = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 16) {
+            break;
+          }
+
+          message.page = reader.int32();
+          continue;
+        }
+        case 3: {
+          if (tag !== 24) {
+            break;
+          }
+
+          message.limit = reader.int32();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): ListInterviewExperiencesRequest {
+    return {
+      companyId: isSet(object.companyId)
+        ? globalThis.String(object.companyId)
+        : isSet(object.company_id)
+        ? globalThis.String(object.company_id)
+        : "",
+      page: isSet(object.page) ? globalThis.Number(object.page) : 0,
+      limit: isSet(object.limit) ? globalThis.Number(object.limit) : 0,
+    };
+  },
+
+  toJSON(message: ListInterviewExperiencesRequest): unknown {
+    const obj: any = {};
+    if (message.companyId !== "") {
+      obj.companyId = message.companyId;
+    }
+    if (message.page !== 0) {
+      obj.page = Math.round(message.page);
+    }
+    if (message.limit !== 0) {
+      obj.limit = Math.round(message.limit);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<ListInterviewExperiencesRequest>, I>>(base?: I): ListInterviewExperiencesRequest {
+    return ListInterviewExperiencesRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<ListInterviewExperiencesRequest>, I>>(
+    object: I,
+  ): ListInterviewExperiencesRequest {
+    const message = createBaseListInterviewExperiencesRequest();
+    message.companyId = object.companyId ?? "";
+    message.page = object.page ?? 0;
+    message.limit = object.limit ?? 0;
+    return message;
+  },
+};
+
+function createBaseListInterviewExperiencesResponse(): ListInterviewExperiencesResponse {
+  return { interviewExperiences: [], total: 0, averageDifficulty: 0 };
+}
+
+export const ListInterviewExperiencesResponse: MessageFns<ListInterviewExperiencesResponse> = {
+  encode(message: ListInterviewExperiencesResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.interviewExperiences) {
+      InterviewExperience.encode(v!, writer.uint32(10).fork()).join();
+    }
+    if (message.total !== 0) {
+      writer.uint32(16).int32(message.total);
+    }
+    if (message.averageDifficulty !== 0) {
+      writer.uint32(25).double(message.averageDifficulty);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ListInterviewExperiencesResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseListInterviewExperiencesResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.interviewExperiences.push(InterviewExperience.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 2: {
+          if (tag !== 16) {
+            break;
+          }
+
+          message.total = reader.int32();
+          continue;
+        }
+        case 3: {
+          if (tag !== 25) {
+            break;
+          }
+
+          message.averageDifficulty = reader.double();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): ListInterviewExperiencesResponse {
+    return {
+      interviewExperiences: globalThis.Array.isArray(object?.interviewExperiences)
+        ? object.interviewExperiences.map((e: any) => InterviewExperience.fromJSON(e))
+        : globalThis.Array.isArray(object?.interview_experiences)
+        ? object.interview_experiences.map((e: any) => InterviewExperience.fromJSON(e))
+        : [],
+      total: isSet(object.total) ? globalThis.Number(object.total) : 0,
+      averageDifficulty: isSet(object.averageDifficulty)
+        ? globalThis.Number(object.averageDifficulty)
+        : isSet(object.average_difficulty)
+        ? globalThis.Number(object.average_difficulty)
+        : 0,
+    };
+  },
+
+  toJSON(message: ListInterviewExperiencesResponse): unknown {
+    const obj: any = {};
+    if (message.interviewExperiences?.length) {
+      obj.interviewExperiences = message.interviewExperiences.map((e) => InterviewExperience.toJSON(e));
+    }
+    if (message.total !== 0) {
+      obj.total = Math.round(message.total);
+    }
+    if (message.averageDifficulty !== 0) {
+      obj.averageDifficulty = message.averageDifficulty;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<ListInterviewExperiencesResponse>, I>>(
+    base?: I,
+  ): ListInterviewExperiencesResponse {
+    return ListInterviewExperiencesResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<ListInterviewExperiencesResponse>, I>>(
+    object: I,
+  ): ListInterviewExperiencesResponse {
+    const message = createBaseListInterviewExperiencesResponse();
+    message.interviewExperiences = object.interviewExperiences?.map((e) => InterviewExperience.fromPartial(e)) || [];
+    message.total = object.total ?? 0;
+    message.averageDifficulty = object.averageDifficulty ?? 0;
+    return message;
+  },
+};
+
 export type CompanyServiceService = typeof CompanyServiceService;
 export const CompanyServiceService = {
   createCompany: {
@@ -1722,6 +2430,31 @@ export const CompanyServiceService = {
     responseSerialize: (value: ListReviewsResponse): Buffer => Buffer.from(ListReviewsResponse.encode(value).finish()),
     responseDeserialize: (value: Buffer): ListReviewsResponse => ListReviewsResponse.decode(value),
   },
+  createInterviewExperience: {
+    path: "/company.CompanyService/CreateInterviewExperience" as const,
+    requestStream: false as const,
+    responseStream: false as const,
+    requestSerialize: (value: CreateInterviewExperienceRequest): Buffer =>
+      Buffer.from(CreateInterviewExperienceRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): CreateInterviewExperienceRequest =>
+      CreateInterviewExperienceRequest.decode(value),
+    responseSerialize: (value: InterviewExperienceResponse): Buffer =>
+      Buffer.from(InterviewExperienceResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): InterviewExperienceResponse => InterviewExperienceResponse.decode(value),
+  },
+  listInterviewExperiences: {
+    path: "/company.CompanyService/ListInterviewExperiences" as const,
+    requestStream: false as const,
+    responseStream: false as const,
+    requestSerialize: (value: ListInterviewExperiencesRequest): Buffer =>
+      Buffer.from(ListInterviewExperiencesRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): ListInterviewExperiencesRequest =>
+      ListInterviewExperiencesRequest.decode(value),
+    responseSerialize: (value: ListInterviewExperiencesResponse): Buffer =>
+      Buffer.from(ListInterviewExperiencesResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): ListInterviewExperiencesResponse =>
+      ListInterviewExperiencesResponse.decode(value),
+  },
 } as const;
 
 export interface CompanyServiceServer extends UntypedServiceImplementation {
@@ -1732,6 +2465,8 @@ export interface CompanyServiceServer extends UntypedServiceImplementation {
   deleteCompany: handleUnaryCall<DeleteCompanyRequest, DeleteCompanyResponse>;
   createReview: handleUnaryCall<CreateReviewRequest, ReviewResponse>;
   listReviews: handleUnaryCall<ListReviewsRequest, ListReviewsResponse>;
+  createInterviewExperience: handleUnaryCall<CreateInterviewExperienceRequest, InterviewExperienceResponse>;
+  listInterviewExperiences: handleUnaryCall<ListInterviewExperiencesRequest, ListInterviewExperiencesResponse>;
 }
 
 export interface CompanyServiceClient extends Client {
@@ -1839,6 +2574,36 @@ export interface CompanyServiceClient extends Client {
     metadata: Metadata,
     options: Partial<CallOptions>,
     callback: (error: ServiceError | null, response: ListReviewsResponse) => void,
+  ): ClientUnaryCall;
+  createInterviewExperience(
+    request: CreateInterviewExperienceRequest,
+    callback: (error: ServiceError | null, response: InterviewExperienceResponse) => void,
+  ): ClientUnaryCall;
+  createInterviewExperience(
+    request: CreateInterviewExperienceRequest,
+    metadata: Metadata,
+    callback: (error: ServiceError | null, response: InterviewExperienceResponse) => void,
+  ): ClientUnaryCall;
+  createInterviewExperience(
+    request: CreateInterviewExperienceRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: InterviewExperienceResponse) => void,
+  ): ClientUnaryCall;
+  listInterviewExperiences(
+    request: ListInterviewExperiencesRequest,
+    callback: (error: ServiceError | null, response: ListInterviewExperiencesResponse) => void,
+  ): ClientUnaryCall;
+  listInterviewExperiences(
+    request: ListInterviewExperiencesRequest,
+    metadata: Metadata,
+    callback: (error: ServiceError | null, response: ListInterviewExperiencesResponse) => void,
+  ): ClientUnaryCall;
+  listInterviewExperiences(
+    request: ListInterviewExperiencesRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: ListInterviewExperiencesResponse) => void,
   ): ClientUnaryCall;
 }
 

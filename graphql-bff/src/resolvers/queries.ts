@@ -35,6 +35,17 @@ export const queryResolvers = {
     return companyClient.listReviews({ companyId, page, limit });
   },
 
+  async interviewExperiences(
+    _: unknown,
+    {
+      companyId,
+      page = 1,
+      limit = 20,
+    }: { companyId: string; page?: number; limit?: number },
+  ) {
+    return companyClient.listInterviewExperiences({ companyId, page, limit });
+  },
+
   async job(_: unknown, { id }: { id: string }) {
     const res = await jobClient.getJob({ id });
     return res.job;

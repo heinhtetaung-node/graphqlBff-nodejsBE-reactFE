@@ -82,6 +82,13 @@ export default function CompaniesPage() {
               >
                 Reviews
               </Link>
+              <Link
+                to={`/companies/${company.id}`}
+                className="btn btn-secondary"
+                style={{ display: "inline-block", fontSize: 14 }}
+              >
+                Interviews ({company.interviewExperiences?.total || 0})
+              </Link>
             </div>
           </div>
         ))}

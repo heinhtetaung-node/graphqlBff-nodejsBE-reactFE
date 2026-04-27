@@ -14,6 +14,11 @@ export type {
   ReviewResponse,
   ListReviewsRequest,
   ListReviewsResponse,
+  InterviewExperience,
+  CreateInterviewExperienceRequest,
+  InterviewExperienceResponse,
+  ListInterviewExperiencesRequest,
+  ListInterviewExperiencesResponse,
   CompanyServiceServer,
 } from "../proto-generated/company";
 
@@ -34,6 +39,10 @@ import type {
   ReviewResponse,
   ListReviewsRequest,
   ListReviewsResponse,
+  CreateInterviewExperienceRequest,
+  InterviewExperienceResponse,
+  ListInterviewExperiencesRequest,
+  ListInterviewExperiencesResponse,
 } from "../proto-generated/company";
 
 export interface CompanyServicePromiseClient {
@@ -44,4 +53,6 @@ export interface CompanyServicePromiseClient {
   deleteCompany(request: DeleteCompanyRequest): Promise<DeleteCompanyResponse>;
   createReview(request: CreateReviewRequest): Promise<ReviewResponse>;
   listReviews(request: ListReviewsRequest): Promise<ListReviewsResponse>;
+  createInterviewExperience(request: CreateInterviewExperienceRequest): Promise<InterviewExperienceResponse>;
+  listInterviewExperiences(request: ListInterviewExperiencesRequest): Promise<ListInterviewExperiencesResponse>;
 }

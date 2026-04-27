@@ -82,6 +82,17 @@ export const fieldResolvers = {
         return 0;
       }
     },
+    async interviewExperiences(company: { id: string }) {
+      try {
+        return companyClient.listInterviewExperiences({
+          companyId: company.id,
+          page: 1,
+          limit: 10,
+        });
+      } catch {
+        return { interviewExperiences: [], total: 0, averageDifficulty: 0 };
+      }
+    },
   },
 
   Review: {},

@@ -10,6 +10,8 @@ service CompanyService {
   rpc DeleteCompany (DeleteCompanyRequest) returns (DeleteCompanyResponse);
   rpc CreateReview (CreateReviewRequest) returns (ReviewResponse);
   rpc ListReviews (ListReviewsRequest) returns (ListReviewsResponse);
+  rpc CreateInterviewExperience (CreateInterviewExperienceRequest) returns (InterviewExperienceResponse);
+  rpc ListInterviewExperiences (ListInterviewExperiencesRequest) returns (ListInterviewExperiencesResponse);
 }
 
 message Company {
@@ -105,4 +107,42 @@ message ListReviewsResponse {
   repeated Review reviews = 1;
   int32 total = 2;
   double average_rating = 3;
+}
+
+message InterviewExperience {
+  string id = 1;
+  string company_id = 2;
+  string user_id = 3;
+  string position_title = 4;
+  int32 difficulty = 5;
+  string result = 6;
+  string description = 7;
+  string interview_date = 8;
+  string created_at = 9;
+}
+
+message CreateInterviewExperienceRequest {
+  string company_id = 1;
+  string user_id = 2;
+  string position_title = 3;
+  int32 difficulty = 4;
+  string result = 5;
+  string description = 6;
+  string interview_date = 7;
+}
+
+message InterviewExperienceResponse {
+  InterviewExperience interview_experience = 1;
+}
+
+message ListInterviewExperiencesRequest {
+  string company_id = 1;
+  int32 page = 2;
+  int32 limit = 3;
+}
+
+message ListInterviewExperiencesResponse {
+  repeated InterviewExperience interview_experiences = 1;
+  int32 total = 2;
+  double average_difficulty = 3;
 }

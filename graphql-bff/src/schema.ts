@@ -11,6 +11,7 @@ export const typeDefs = `#graphql
     jobs: [Job!]
     reviews: PaginatedReviews
     averageRating: Float
+    interviewExperiences: PaginatedInterviewExperiences
     createdAt: String
     updatedAt: String
   }
@@ -29,6 +30,24 @@ export const typeDefs = `#graphql
     reviews: [Review!]!
     total: Int!
     averageRating: Float!
+  }
+
+  type InterviewExperience {
+    id: ID!
+    companyId: ID!
+    userId: ID!
+    positionTitle: String!
+    difficulty: Int!
+    result: String
+    description: String
+    interviewDate: String
+    createdAt: String
+  }
+
+  type PaginatedInterviewExperiences {
+    interviewExperiences: [InterviewExperience!]!
+    total: Int!
+    averageDifficulty: Float!
   }
 
   type Job {
@@ -135,6 +154,7 @@ export const typeDefs = `#graphql
     company(id: ID!): Company
     companies(page: Int, limit: Int, industry: String): PaginatedCompanies!
     reviews(companyId: ID!, page: Int, limit: Int): PaginatedReviews!
+    interviewExperiences(companyId: ID!, page: Int, limit: Int): PaginatedInterviewExperiences!
     job(id: ID!): Job
     jobs(page: Int, limit: Int, jobType: String, experienceLevel: String, location: String, companyId: ID): PaginatedJobs!
     jobsByCompany(companyId: ID!, page: Int, limit: Int): PaginatedJobs!
@@ -158,6 +178,7 @@ export const typeDefs = `#graphql
     updateCompany(id: ID!, name: String, description: String, website: String, industry: String, logoUrl: String, location: String, employeeCount: Int): Company!
     deleteCompany(id: ID!): Boolean!
     createReview(companyId: ID!, rating: Int!, comment: String, positionTitle: String): Review!
+    createInterviewExperience(companyId: ID!, positionTitle: String!, difficulty: Int!, result: String, description: String, interviewDate: String): InterviewExperience!
     createJob(companyId: ID!, title: String!, description: String, location: String, salaryRange: String, jobType: String, experienceLevel: String, skills: [String!]): Job!
     updateJob(id: ID!, title: String, description: String, location: String, salaryRange: String, jobType: String, experienceLevel: String, skills: [String!], isActive: Boolean): Job!
     deleteJob(id: ID!): Boolean!

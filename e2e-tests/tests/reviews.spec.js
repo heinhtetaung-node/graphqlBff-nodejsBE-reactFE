@@ -69,15 +69,18 @@ test.describe("Reviews & Ratings", () => {
     // Should see the review form
     await expect(page.getByText("Write a Review")).toBeVisible();
 
+    // Scope to the review form
+    const reviewForm = page.locator(".card", { hasText: "Write a Review" });
+
     // Click the 4th star
-    const stars = page.locator("form span").filter({ hasText: "★" });
+    const stars = reviewForm.locator("span").filter({ hasText: "★" });
     await stars.nth(3).click();
 
     // Fill position title
-    await page.locator('form input[type="text"]').fill("Software Engineer");
+    await reviewForm.locator('input[type="text"]').fill("Software Engineer");
 
     // Fill comment
-    await page.locator("form textarea").fill("Great company to work for!");
+    await reviewForm.locator("textarea").fill("Great company to work for!");
 
     // Submit
     await page.getByRole("button", { name: "Submit Review" }).click();

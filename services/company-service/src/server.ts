@@ -2,7 +2,7 @@ import * as grpc from "@grpc/grpc-js";
 import type pino from "pino";
 import db from "./db";
 import { config } from "./config";
-import { CompanyRepository, ReviewRepository } from "./repository";
+import { CompanyRepository, ReviewRepository, InterviewExperienceRepository } from "./repository";
 import { createLogger } from "../../../shared/src/logger";
 import { addHealthCheck } from "../../../shared/src/health";
 import { gracefulShutdown } from "../../../shared/src/shutdown";
@@ -17,6 +17,7 @@ const logger: pino.Logger = createLogger("company-service");
 
 const companyRepo = new CompanyRepository(db);
 const reviewRepo = new ReviewRepository(db);
+const interviewExpRepo = new InterviewExperienceRepository(db);
 
 const handlers: CompanyServiceServer = {
   async createCompany(
@@ -122,6 +123,43 @@ const handlers: CompanyServiceServer = {
   ) {
     try {
       const result = await reviewRepo.list(call.request);
+      callback(null, result);
+    } catch (err: any) {
+      callback({ code: grpc.status.INTERNAL, message: err.message });
+    }
+  },
+
+  async createInterviewExperience(
+    call: grpc.ServerUnaryCall<any, any>,
+    callback: grpc.sendUnaryData<any>,
+  ) {
+    try {
+      const { difficulty } = call.request;
+      if (difficulty < 1 || difficulty > 5) {
+        return callback({
+          code: grpc.status.INVALID_ARGUMENT,
+          message: "Difficulty must be between 1 and 5",
+        });
+      }
+      const interviewExperience = await interviewExpRepo.create(call.request);
+      callback(null, { interviewExperience });
+    } catch (err: any) {
+      if (err.constraint === "interview_experiences_company_id_user_id_position_title_unique") {
+        return callback({
+          code: grpc.status.ALREADY_EXISTS,
+          message: "You have already shared an interview experience for this position at this company",
+        });
+      }
+      callback({ code: grpc.status.INTERNAL, message: err.message });
+    }
+  },
+
+  async listInterviewExperiences(
+    call: grpc.ServerUnaryCall<any, any>,
+    callback: grpc.sendUnaryData<any>,
+  ) {
+    try {
+      const result = await interviewExpRepo.list(call.request);
       callback(null, result);
     } catch (err: any) {
       callback({ code: grpc.status.INTERNAL, message: err.message });

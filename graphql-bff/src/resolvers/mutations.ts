@@ -74,6 +74,40 @@ export const mutationResolvers = {
     return res.review;
   },
 
+  async createInterviewExperience(
+    _: unknown,
+    {
+      companyId,
+      positionTitle,
+      difficulty,
+      result,
+      description,
+      interviewDate,
+    }: {
+      companyId: string;
+      positionTitle: string;
+      difficulty: number;
+      result?: string;
+      description?: string;
+      interviewDate?: string;
+    },
+    context: GraphQLContext,
+  ) {
+    const auth = requireRole(context, "JOB_HUNTER");
+    if (difficulty < 1 || difficulty > 5)
+      throw new Error("Difficulty must be between 1 and 5");
+    const res = await companyClient.createInterviewExperience({
+      companyId,
+      userId: auth.userId,
+      positionTitle,
+      difficulty,
+      result,
+      description,
+      interviewDate,
+    });
+    return res.interviewExperience;
+  },
+
   async createCompany(_: unknown, args: any, context: GraphQLContext) {
     const auth = requireRole(context, "TALENT_HUNTER");
     validateString(args.name, "company name", { minLength: 1, maxLength: 200 });
