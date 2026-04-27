@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useSearchParams } from "react-router-dom";
 import { useQuery, useMutation } from "@apollo/client";
 import {
   GET_REVIEWS,
@@ -57,7 +57,14 @@ const RESULT_OPTIONS = ["Got Offer", "No Offer", "Declined", "Ghosted"];
 
 export default function CompanyDetailPage() {
   const { id } = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useAuth();
+  const [activeTab, setActiveTab] = useState(searchParams.get("tab") || "reviews");
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    setSearchParams({ tab });
+  };
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
   const [positionTitle, setPositionTitle] = useState("");
@@ -200,7 +207,24 @@ export default function CompanyDetailPage() {
         </div>
       )}
 
-      {user?.role === "JOB_HUNTER" && !submitted && (
+      <div style={{ display: "flex", gap: 0, marginBottom: 24 }}>
+        <button
+          className={activeTab === "reviews" ? "btn btn-primary" : "btn btn-secondary"}
+          onClick={() => handleTabChange("reviews")}
+          style={{ borderRadius: "8px 0 0 8px", flex: 1 }}
+        >
+          Reviews ({totalReviews})
+        </button>
+        <button
+          className={activeTab === "interviews" ? "btn btn-primary" : "btn btn-secondary"}
+          onClick={() => handleTabChange("interviews")}
+          style={{ borderRadius: "0 8px 8px 0", flex: 1 }}
+        >
+          Interviews ({totalInterviews})
+        </button>
+      </div>
+
+      {activeTab === "reviews" && user?.role === "JOB_HUNTER" && !submitted && (
         <div className="card" style={{ marginBottom: 24 }}>
           <h3 style={{ marginBottom: 16 }}>Write a Review</h3>
           {error && <p className="error">{error.message}</p>}
@@ -237,7 +261,7 @@ export default function CompanyDetailPage() {
         </div>
       )}
 
-      {submitted && (
+      {activeTab === "reviews" && submitted && (
         <div
           className="card"
           style={{
@@ -252,7 +276,7 @@ export default function CompanyDetailPage() {
         </div>
       )}
 
-      <div className="card">
+      {activeTab === "reviews" && <div className="card">
         <h3 style={{ marginBottom: 16 }}>Reviews ({totalReviews})</h3>
         {loading && <p>Loading reviews...</p>}
         {reviews.length === 0 && !loading && (
@@ -289,9 +313,9 @@ export default function CompanyDetailPage() {
             )}
           </div>
         ))}
-      </div>
+      </div>}
 
-      {user?.role === "JOB_HUNTER" && !ieSubmitted && (
+      {activeTab === "interviews" && user?.role === "JOB_HUNTER" && !ieSubmitted && (
         <div className="card" style={{ marginBottom: 24 }}>
           <h3 style={{ marginBottom: 16 }}>Share Interview Experience</h3>
           {ieError && <p className="error">{ieError.message}</p>}
@@ -371,7 +395,7 @@ export default function CompanyDetailPage() {
         </div>
       )}
 
-      {ieSubmitted && (
+      {activeTab === "interviews" && ieSubmitted && (
         <div
           className="card"
           style={{
@@ -386,7 +410,7 @@ export default function CompanyDetailPage() {
         </div>
       )}
 
-      <div className="card">
+      {activeTab === "interviews" && <div className="card">
         <h3 style={{ marginBottom: 16 }}>
           Interview Experiences ({totalInterviews})
         </h3>
@@ -438,7 +462,7 @@ export default function CompanyDetailPage() {
             )}
           </div>
         ))}
-      </div>
+      </div>}
     </div>
   );
 }

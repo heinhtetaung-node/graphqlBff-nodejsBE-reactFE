@@ -76,14 +76,14 @@ export default function CompaniesPage() {
                 View Jobs
               </Link>
               <Link
-                to={`/companies/${company.id}`}
+                to={`/companies/${company.id}?tab=reviews`}
                 className="btn btn-secondary"
                 style={{ display: "inline-block", fontSize: 14 }}
               >
                 Reviews
               </Link>
               <Link
-                to={`/companies/${company.id}`}
+                to={`/companies/${company.id}?tab=interviews`}
                 className="btn btn-secondary"
                 style={{ display: "inline-block", fontSize: 14 }}
               >

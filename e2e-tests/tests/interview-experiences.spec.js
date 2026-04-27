@@ -64,6 +64,9 @@ test.describe("Interview Experiences", () => {
       page.getByRole("heading", { name: COMPANY_NAME }),
     ).toBeVisible();
 
+    // Switch to Interviews tab
+    await page.getByRole("button", { name: /Interviews/ }).click();
+
     await expect(page.getByText("Share Interview Experience")).toBeVisible();
 
     // Scope to the interview experience form card
@@ -109,6 +112,8 @@ test.describe("Interview Experiences", () => {
   }) => {
     await loginUser(page, JH_EMAIL);
     await page.goto(`/companies/${companyId}`);
+    // Switch to Interviews tab
+    await page.getByRole("button", { name: /Interviews/ }).click();
     await expect(page.getByText("Average Difficulty:")).toBeVisible();
     await expect(page.getByText("4.0")).toBeVisible();
   });
@@ -119,6 +124,8 @@ test.describe("Interview Experiences", () => {
     await expect(
       page.getByRole("heading", { name: COMPANY_NAME }),
     ).toBeVisible();
+    // Switch to Interviews tab
+    await page.getByRole("button", { name: /Interviews/ }).click();
     await expect(
       page.getByText("Share Interview Experience"),
     ).not.toBeVisible();
@@ -133,6 +140,8 @@ test.describe("Interview Experiences", () => {
     await expect(
       page.getByRole("heading", { name: COMPANY_NAME }),
     ).toBeVisible();
+    // Switch to Interviews tab
+    await page.getByRole("button", { name: /Interviews/ }).click();
     await expect(
       page.getByText("Share Interview Experience"),
     ).not.toBeVisible();
