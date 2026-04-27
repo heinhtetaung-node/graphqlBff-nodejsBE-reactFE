@@ -1,6 +1,4 @@
 import * as grpc from "@grpc/grpc-js";
-import * as protoLoader from "@grpc/proto-loader";
-import path from "node:path";
 import type pino from "pino";
 import db from "./db";
 import { config } from "./config";
@@ -9,25 +7,18 @@ import { createLogger } from "../../../shared/src/logger";
 import { addHealthCheck } from "../../../shared/src/health";
 import { gracefulShutdown } from "../../../shared/src/shutdown";
 import { initTracing } from "../../../shared/src/tracing";
+import {
+  SubscriptionServiceService,
+  type SubscriptionServiceServer,
+} from "../../../shared/proto-generated/subscription";
 
 initTracing("subscription-service");
 const logger: pino.Logger = createLogger("subscription-service");
 
-const PROTO_PATH = path.join(__dirname, "../../../protos/subscription.proto");
-const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
-  keepCase: false,
-  longs: String,
-  enums: String,
-  defaults: true,
-  oneofs: true,
-});
-const subProto = grpc.loadPackageDefinition(packageDefinition)
-  .subscription as any;
-
 const subRepo = new SubscriptionRepository(db);
 
-const handlers: grpc.UntypedServiceImplementation = {
-  async CreateSubscription(
+const handlers: SubscriptionServiceServer = {
+  async createSubscription(
     call: grpc.ServerUnaryCall<any, any>,
     callback: grpc.sendUnaryData<any>,
   ) {
@@ -46,7 +37,7 @@ const handlers: grpc.UntypedServiceImplementation = {
     }
   },
 
-  async GetSubscription(
+  async getSubscription(
     call: grpc.ServerUnaryCall<any, any>,
     callback: grpc.sendUnaryData<any>,
   ) {
@@ -63,7 +54,7 @@ const handlers: grpc.UntypedServiceImplementation = {
     }
   },
 
-  async GetSubscriptionByUser(
+  async getSubscriptionByUser(
     call: grpc.ServerUnaryCall<any, any>,
     callback: grpc.sendUnaryData<any>,
   ) {
@@ -80,7 +71,7 @@ const handlers: grpc.UntypedServiceImplementation = {
     }
   },
 
-  async CancelSubscription(
+  async cancelSubscription(
     call: grpc.ServerUnaryCall<any, any>,
     callback: grpc.sendUnaryData<any>,
   ) {
@@ -97,7 +88,7 @@ const handlers: grpc.UntypedServiceImplementation = {
     }
   },
 
-  async CheckUsageLimit(
+  async checkUsageLimit(
     call: grpc.ServerUnaryCall<any, any>,
     callback: grpc.sendUnaryData<any>,
   ) {
@@ -110,7 +101,7 @@ const handlers: grpc.UntypedServiceImplementation = {
     }
   },
 
-  async IncrementUsage(
+  async incrementUsage(
     call: grpc.ServerUnaryCall<any, any>,
     callback: grpc.sendUnaryData<any>,
   ) {
@@ -129,7 +120,7 @@ const handlers: grpc.UntypedServiceImplementation = {
     }
   },
 
-  async GetUsage(
+  async getUsage(
     call: grpc.ServerUnaryCall<any, any>,
     callback: grpc.sendUnaryData<any>,
   ) {
@@ -145,7 +136,7 @@ const handlers: grpc.UntypedServiceImplementation = {
 
 function main(): void {
   const server = new grpc.Server();
-  server.addService(subProto.SubscriptionService.service, handlers);
+  server.addService(SubscriptionServiceService, handlers);
 
   const health = addHealthCheck(server, logger);
   const port = config.grpcPort;

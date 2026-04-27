@@ -1,6 +1,4 @@
 import * as grpc from "@grpc/grpc-js";
-import * as protoLoader from "@grpc/proto-loader";
-import path from "path";
 import type pino from "pino";
 import db from "./db";
 import { config } from "./config";
@@ -9,25 +7,19 @@ import { createLogger } from "../../../shared/src/logger";
 import { addHealthCheck } from "../../../shared/src/health";
 import { gracefulShutdown } from "../../../shared/src/shutdown";
 import { initTracing } from "../../../shared/src/tracing";
+import {
+  JobServiceService,
+  type JobServiceServer,
+} from "../../../shared/proto-generated/job";
 
 initTracing("job-service");
 const logger: pino.Logger = createLogger("job-service");
 
-const PROTO_PATH = path.join(__dirname, "../../../protos/job.proto");
-const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
-  keepCase: false,
-  longs: String,
-  enums: String,
-  defaults: true,
-  oneofs: true,
-});
-const jobProto = grpc.loadPackageDefinition(packageDefinition).job as any;
-
 const jobRepo = new JobRepository(db);
 const appRepo = new ApplicationRepository(db);
 
-const handlers: grpc.UntypedServiceImplementation = {
-  async CreateJob(
+const handlers: JobServiceServer = {
+  async createJob(
     call: grpc.ServerUnaryCall<any, any>,
     callback: grpc.sendUnaryData<any>,
   ) {
@@ -39,7 +31,7 @@ const handlers: grpc.UntypedServiceImplementation = {
     }
   },
 
-  async GetJob(
+  async getJob(
     call: grpc.ServerUnaryCall<any, any>,
     callback: grpc.sendUnaryData<any>,
   ) {
@@ -56,7 +48,7 @@ const handlers: grpc.UntypedServiceImplementation = {
     }
   },
 
-  async ListJobs(
+  async listJobs(
     call: grpc.ServerUnaryCall<any, any>,
     callback: grpc.sendUnaryData<any>,
   ) {
@@ -68,7 +60,7 @@ const handlers: grpc.UntypedServiceImplementation = {
     }
   },
 
-  async ListJobsByCompany(
+  async listJobsByCompany(
     call: grpc.ServerUnaryCall<any, any>,
     callback: grpc.sendUnaryData<any>,
   ) {
@@ -80,7 +72,7 @@ const handlers: grpc.UntypedServiceImplementation = {
     }
   },
 
-  async UpdateJob(
+  async updateJob(
     call: grpc.ServerUnaryCall<any, any>,
     callback: grpc.sendUnaryData<any>,
   ) {
@@ -97,7 +89,7 @@ const handlers: grpc.UntypedServiceImplementation = {
     }
   },
 
-  async DeleteJob(
+  async deleteJob(
     call: grpc.ServerUnaryCall<any, any>,
     callback: grpc.sendUnaryData<any>,
   ) {
@@ -109,7 +101,7 @@ const handlers: grpc.UntypedServiceImplementation = {
     }
   },
 
-  async ApplyToJob(
+  async applyToJob(
     call: grpc.ServerUnaryCall<any, any>,
     callback: grpc.sendUnaryData<any>,
   ) {
@@ -127,7 +119,7 @@ const handlers: grpc.UntypedServiceImplementation = {
     }
   },
 
-  async ListApplicationsByJob(
+  async listApplicationsByJob(
     call: grpc.ServerUnaryCall<any, any>,
     callback: grpc.sendUnaryData<any>,
   ) {
@@ -139,7 +131,7 @@ const handlers: grpc.UntypedServiceImplementation = {
     }
   },
 
-  async ListApplicationsByUser(
+  async listApplicationsByUser(
     call: grpc.ServerUnaryCall<any, any>,
     callback: grpc.sendUnaryData<any>,
   ) {
@@ -154,7 +146,7 @@ const handlers: grpc.UntypedServiceImplementation = {
 
 function main(): void {
   const server = new grpc.Server();
-  server.addService(jobProto.JobService.service, handlers);
+  server.addService(JobServiceService, handlers);
 
   const health = addHealthCheck(server, logger);
   const port = config.grpcPort;

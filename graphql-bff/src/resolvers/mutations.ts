@@ -22,7 +22,7 @@ export const mutationResolvers = {
     validateString(args.name, "name", { minLength: 1, maxLength: 100 });
     validateEnum(args.role, "role", ["TALENT_HUNTER", "JOB_HUNTER"]);
 
-    const res = await userClient.createUser(args);
+    const res = await userClient.createUser({ ...args, skills: args.skills ?? [] });
     const loginRes = await userClient.login({
       email: args.email,
       password: args.password,
@@ -77,8 +77,11 @@ export const mutationResolvers = {
   async createCompany(_: unknown, args: any, context: GraphQLContext) {
     const auth = requireRole(context, "TALENT_HUNTER");
     validateString(args.name, "company name", { minLength: 1, maxLength: 200 });
-    const res = await companyClient.createCompany(args);
-    await userClient.updateUser({ id: auth.userId, companyId: res.company.id });
+    const res = await companyClient.createCompany({
+      ...args,
+      employeeCount: args.employeeCount ?? 0,
+    });
+    await userClient.updateUser({ id: auth.userId, companyId: res.company.id, skills: [] });
     publish(eventSubjects.COMPANY_CREATED, { company: res.company });
     return res.company;
   },
@@ -88,7 +91,10 @@ export const mutationResolvers = {
     const userRes = await userClient.getUser({ id: auth.userId });
     if (userRes.user.companyId !== args.id)
       throw new Error("Forbidden: you can only update your own company");
-    const res = await companyClient.updateCompany(args);
+    const res = await companyClient.updateCompany({
+      ...args,
+      employeeCount: args.employeeCount ?? 0,
+    });
     return res.company;
   },
 
@@ -136,6 +142,7 @@ export const mutationResolvers = {
 
     const res = await jobClient.createJob({
       ...args,
+      skills: args.skills ?? [],
       postedByUserId: auth.userId,
     });
     await subscriptionClient.incrementUsage({
@@ -150,7 +157,7 @@ export const mutationResolvers = {
     const auth = requireRole(context, "TALENT_HUNTER");
     const existing = await jobClient.getJob({ id: args.id });
     requireOwner(auth, existing.job.postedByUserId);
-    const res = await jobClient.updateJob(args);
+    const res = await jobClient.updateJob({ ...args, skills: args.skills ?? [] });
     return res.job;
   },
 

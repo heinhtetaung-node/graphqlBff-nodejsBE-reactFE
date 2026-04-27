@@ -1,6 +1,4 @@
 import * as grpc from "@grpc/grpc-js";
-import * as protoLoader from "@grpc/proto-loader";
-import path from "path";
 import type pino from "pino";
 import db from "./db";
 import { config } from "./config";
@@ -9,26 +7,19 @@ import { createLogger } from "../../../shared/src/logger";
 import { addHealthCheck } from "../../../shared/src/health";
 import { gracefulShutdown } from "../../../shared/src/shutdown";
 import { initTracing } from "../../../shared/src/tracing";
+import {
+  CompanyServiceService,
+  type CompanyServiceServer,
+} from "../../../shared/proto-generated/company";
 
 initTracing("company-service");
 const logger: pino.Logger = createLogger("company-service");
 
-const PROTO_PATH = path.join(__dirname, "../../../protos/company.proto");
-const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
-  keepCase: false,
-  longs: String,
-  enums: String,
-  defaults: true,
-  oneofs: true,
-});
-const companyProto = grpc.loadPackageDefinition(packageDefinition)
-  .company as any;
-
 const companyRepo = new CompanyRepository(db);
 const reviewRepo = new ReviewRepository(db);
 
-const handlers: grpc.UntypedServiceImplementation = {
-  async CreateCompany(
+const handlers: CompanyServiceServer = {
+  async createCompany(
     call: grpc.ServerUnaryCall<any, any>,
     callback: grpc.sendUnaryData<any>,
   ) {
@@ -40,7 +31,7 @@ const handlers: grpc.UntypedServiceImplementation = {
     }
   },
 
-  async GetCompany(
+  async getCompany(
     call: grpc.ServerUnaryCall<any, any>,
     callback: grpc.sendUnaryData<any>,
   ) {
@@ -58,7 +49,7 @@ const handlers: grpc.UntypedServiceImplementation = {
     }
   },
 
-  async ListCompanies(
+  async listCompanies(
     call: grpc.ServerUnaryCall<any, any>,
     callback: grpc.sendUnaryData<any>,
   ) {
@@ -70,7 +61,7 @@ const handlers: grpc.UntypedServiceImplementation = {
     }
   },
 
-  async UpdateCompany(
+  async updateCompany(
     call: grpc.ServerUnaryCall<any, any>,
     callback: grpc.sendUnaryData<any>,
   ) {
@@ -88,7 +79,7 @@ const handlers: grpc.UntypedServiceImplementation = {
     }
   },
 
-  async DeleteCompany(
+  async deleteCompany(
     call: grpc.ServerUnaryCall<any, any>,
     callback: grpc.sendUnaryData<any>,
   ) {
@@ -100,7 +91,7 @@ const handlers: grpc.UntypedServiceImplementation = {
     }
   },
 
-  async CreateReview(
+  async createReview(
     call: grpc.ServerUnaryCall<any, any>,
     callback: grpc.sendUnaryData<any>,
   ) {
@@ -125,7 +116,7 @@ const handlers: grpc.UntypedServiceImplementation = {
     }
   },
 
-  async ListReviews(
+  async listReviews(
     call: grpc.ServerUnaryCall<any, any>,
     callback: grpc.sendUnaryData<any>,
   ) {
@@ -140,7 +131,7 @@ const handlers: grpc.UntypedServiceImplementation = {
 
 function main(): void {
   const server = new grpc.Server();
-  server.addService(companyProto.CompanyService.service, handlers);
+  server.addService(CompanyServiceService, handlers);
 
   const health = addHealthCheck(server, logger);
   const port = config.grpcPort;

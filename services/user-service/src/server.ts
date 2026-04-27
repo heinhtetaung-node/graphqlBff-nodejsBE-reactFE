@@ -1,6 +1,4 @@
 import * as grpc from '@grpc/grpc-js';
-import * as protoLoader from '@grpc/proto-loader';
-import path from 'path';
 import type pino from 'pino';
 import db from './db';
 import { config } from './config';
@@ -9,24 +7,18 @@ import { createLogger } from '../../../shared/src/logger';
 import { addHealthCheck } from '../../../shared/src/health';
 import { gracefulShutdown } from '../../../shared/src/shutdown';
 import { initTracing } from '../../../shared/src/tracing';
+import {
+  UserServiceService,
+  type UserServiceServer,
+} from '../../../shared/proto-generated/user';
 
 initTracing('user-service');
 const logger: pino.Logger = createLogger('user-service');
 
-const PROTO_PATH = path.join(__dirname, '../../../protos/user.proto');
-const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
-  keepCase: false,
-  longs: String,
-  enums: String,
-  defaults: true,
-  oneofs: true,
-});
-const userProto = grpc.loadPackageDefinition(packageDefinition).user as any;
-
 const userRepo = new UserRepository(db);
 
-const handlers: grpc.UntypedServiceImplementation = {
-  async CreateUser(call: grpc.ServerUnaryCall<any, any>, callback: grpc.sendUnaryData<any>) {
+const handlers: UserServiceServer = {
+  async createUser(call: grpc.ServerUnaryCall<any, any>, callback: grpc.sendUnaryData<any>) {
     try {
       const { role } = call.request;
       if (!['TALENT_HUNTER', 'JOB_HUNTER'].includes(role)) {
@@ -42,7 +34,7 @@ const handlers: grpc.UntypedServiceImplementation = {
     }
   },
 
-  async GetUser(call: grpc.ServerUnaryCall<any, any>, callback: grpc.sendUnaryData<any>) {
+  async getUser(call: grpc.ServerUnaryCall<any, any>, callback: grpc.sendUnaryData<any>) {
     try {
       const user = await userRepo.findById(call.request.id);
       if (!user) return callback({ code: grpc.status.NOT_FOUND, message: 'User not found' });
@@ -52,7 +44,7 @@ const handlers: grpc.UntypedServiceImplementation = {
     }
   },
 
-  async GetUserByEmail(call: grpc.ServerUnaryCall<any, any>, callback: grpc.sendUnaryData<any>) {
+  async getUserByEmail(call: grpc.ServerUnaryCall<any, any>, callback: grpc.sendUnaryData<any>) {
     try {
       const user = await userRepo.findByEmail(call.request.email);
       if (!user) return callback({ code: grpc.status.NOT_FOUND, message: 'User not found' });
@@ -62,7 +54,7 @@ const handlers: grpc.UntypedServiceImplementation = {
     }
   },
 
-  async ListUsers(call: grpc.ServerUnaryCall<any, any>, callback: grpc.sendUnaryData<any>) {
+  async listUsers(call: grpc.ServerUnaryCall<any, any>, callback: grpc.sendUnaryData<any>) {
     try {
       const result = await userRepo.list(call.request);
       callback(null, result);
@@ -71,7 +63,7 @@ const handlers: grpc.UntypedServiceImplementation = {
     }
   },
 
-  async UpdateUser(call: grpc.ServerUnaryCall<any, any>, callback: grpc.sendUnaryData<any>) {
+  async updateUser(call: grpc.ServerUnaryCall<any, any>, callback: grpc.sendUnaryData<any>) {
     try {
       const user = await userRepo.update(call.request);
       if (!user) return callback({ code: grpc.status.NOT_FOUND, message: 'User not found' });
@@ -81,7 +73,7 @@ const handlers: grpc.UntypedServiceImplementation = {
     }
   },
 
-  async DeleteUser(call: grpc.ServerUnaryCall<any, any>, callback: grpc.sendUnaryData<any>) {
+  async deleteUser(call: grpc.ServerUnaryCall<any, any>, callback: grpc.sendUnaryData<any>) {
     try {
       const success = await userRepo.delete(call.request.id);
       callback(null, { success });
@@ -90,7 +82,7 @@ const handlers: grpc.UntypedServiceImplementation = {
     }
   },
 
-  async Login(call: grpc.ServerUnaryCall<any, any>, callback: grpc.sendUnaryData<any>) {
+  async login(call: grpc.ServerUnaryCall<any, any>, callback: grpc.sendUnaryData<any>) {
     try {
       const { email, password } = call.request;
       const result = await userRepo.login(email, password);
@@ -106,7 +98,7 @@ const handlers: grpc.UntypedServiceImplementation = {
 
 function main(): void {
   const server = new grpc.Server();
-  server.addService(userProto.UserService.service, handlers);
+  server.addService(UserServiceService, handlers);
 
   const health = addHealthCheck(server, logger);
   const port = config.grpcPort;

@@ -1,33 +1,59 @@
 import * as grpc from "@grpc/grpc-js";
-import * as protoLoader from "@grpc/proto-loader";
-import path from "path";
 import { config } from "./config";
 import { wrapClientWithCircuitBreaker } from "../../shared/src/circuitBreaker";
-import type { CompanyServiceClient } from "../../shared/proto-types/company";
-import type { JobServiceClient } from "../../shared/proto-types/job";
-import type { UserServiceClient } from "../../shared/proto-types/user";
-import type { SubscriptionServiceClient } from "../../shared/proto-types/subscription";
+import { CompanyServiceService } from "../../shared/proto-generated/company";
+import type { CompanyServicePromiseClient } from "../../shared/proto-types/company";
+import { JobServiceService } from "../../shared/proto-generated/job";
+import type { JobServicePromiseClient } from "../../shared/proto-types/job";
+import { UserServiceService } from "../../shared/proto-generated/user";
+import type { UserServicePromiseClient } from "../../shared/proto-types/user";
+import { SubscriptionServiceService } from "../../shared/proto-generated/subscription";
+import type { SubscriptionServicePromiseClient } from "../../shared/proto-types/subscription";
 
-function loadClient(
-  protoFile: string,
-  packageName: string,
+/**
+ * Patch a service definition so that requestSerialize normalises
+ * `undefined`/`null` values to proto3 defaults before encoding.
+ *
+ * ts-proto's encode() assumes every field is set to a typed value;
+ * passing `undefined` (common for optional GraphQL args) crashes the
+ * encoder.  We decode an empty buffer once per method to obtain the
+ * canonical defaults, then merge them under the caller-supplied values
+ * at serialisation time.
+ */
+function normalizeServiceDefinition(
+  def: grpc.ServiceDefinition,
+): grpc.ServiceDefinition {
+  const patched: Record<string, unknown> = {};
+  for (const [key, method] of Object.entries(def)) {
+    const m = method as any;
+    const origSerialize: (v: any) => Buffer = m.requestSerialize;
+    const defaults: Record<string, unknown> = m.requestDeserialize(
+      Buffer.from([]),
+    );
+    patched[key] = {
+      ...m,
+      requestSerialize: (value: any) => {
+        const clean: Record<string, unknown> = {};
+        for (const [k, v] of Object.entries(value)) {
+          if (v !== undefined && v !== null) {
+            clean[k] = v;
+          }
+        }
+        return origSerialize({ ...defaults, ...clean });
+      },
+    };
+  }
+  return patched as grpc.ServiceDefinition;
+}
+
+function createClient(
+  serviceDefinition: grpc.ServiceDefinition,
   serviceName: string,
   address: string,
 ): grpc.Client {
-  const packageDefinition = protoLoader.loadSync(
-    path.join(__dirname, "../../protos", protoFile),
-    {
-      keepCase: false,
-      longs: String,
-      enums: String,
-      defaults: true,
-      oneofs: true,
-    },
-  );
-  const proto = grpc.loadPackageDefinition(packageDefinition)[
-    packageName
-  ] as any;
-  return new proto[serviceName](address, grpc.credentials.createInsecure());
+  const normalizedDef = normalizeServiceDefinition(serviceDefinition);
+  const ClientCtor = grpc.makeGenericClientConstructor(normalizedDef, serviceName);
+  return new ClientCtor(address, grpc.credentials.createInsecure());
 }
 
 function promisify<T extends Record<string, (...args: any[]) => any>>(
@@ -52,11 +78,10 @@ function promisify<T extends Record<string, (...args: any[]) => any>>(
 }
 
 export const companyClient = wrapClientWithCircuitBreaker(
-  promisify<CompanyServiceClient>(
-    loadClient(
-      "company.proto",
-      "company",
-      "CompanyService",
+  promisify<CompanyServicePromiseClient>(
+    createClient(
+      CompanyServiceService as unknown as grpc.ServiceDefinition,
+      "company.CompanyService",
       config.companyServiceUrl,
     ),
   ),
@@ -64,25 +89,32 @@ export const companyClient = wrapClientWithCircuitBreaker(
 );
 
 export const jobClient = wrapClientWithCircuitBreaker(
-  promisify<JobServiceClient>(
-    loadClient("job.proto", "job", "JobService", config.jobServiceUrl),
+  promisify<JobServicePromiseClient>(
+    createClient(
+      JobServiceService as unknown as grpc.ServiceDefinition,
+      "job.JobService",
+      config.jobServiceUrl,
+    ),
   ),
   "job-service",
 );
 
 export const userClient = wrapClientWithCircuitBreaker(
-  promisify<UserServiceClient>(
-    loadClient("user.proto", "user", "UserService", config.userServiceUrl),
+  promisify<UserServicePromiseClient>(
+    createClient(
+      UserServiceService as unknown as grpc.ServiceDefinition,
+      "user.UserService",
+      config.userServiceUrl,
+    ),
   ),
   "user-service",
 );
 
 export const subscriptionClient = wrapClientWithCircuitBreaker(
-  promisify<SubscriptionServiceClient>(
-    loadClient(
-      "subscription.proto",
-      "subscription",
-      "SubscriptionService",
+  promisify<SubscriptionServicePromiseClient>(
+    createClient(
+      SubscriptionServiceService as unknown as grpc.ServiceDefinition,
+      "subscription.SubscriptionService",
       config.subscriptionServiceUrl,
     ),
   ),
