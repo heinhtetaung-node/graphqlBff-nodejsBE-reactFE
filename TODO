@@ -1,3 +1,10 @@
 TODO
 
-1. typescript change
+1. Subscription in stripe
+2. Culture feature
+3. Salary feature
+4. Job detail page
+5. Allow to add Custom input in job creation
+6. Email communication in each steps
+7. Applicants Status update (applied, interviewing, offered, rejected etc...)
+8. Company status show for applicants also
