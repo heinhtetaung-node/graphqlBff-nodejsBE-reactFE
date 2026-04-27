@@ -51,7 +51,7 @@ test.describe("Reviews & Ratings", () => {
     await expect(
       page.getByRole("heading", { name: COMPANY_NAME }),
     ).toBeVisible();
-    await expect(page.getByText("Reviews (0)")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Reviews (0)" })).toBeVisible();
     await expect(page.getByText("No reviews yet")).toBeVisible();
 
     // Store companyId from URL
@@ -69,15 +69,18 @@ test.describe("Reviews & Ratings", () => {
     // Should see the review form
     await expect(page.getByText("Write a Review")).toBeVisible();
 
+    // Scope to the review form
+    const reviewForm = page.locator(".card", { hasText: "Write a Review" });
+
     // Click the 4th star
-    const stars = page.locator("form span").filter({ hasText: "★" });
+    const stars = reviewForm.locator("span").filter({ hasText: "★" });
     await stars.nth(3).click();
 
     // Fill position title
-    await page.locator('form input[type="text"]').fill("Software Engineer");
+    await reviewForm.locator('input[type="text"]').fill("Software Engineer");
 
     // Fill comment
-    await page.locator("form textarea").fill("Great company to work for!");
+    await reviewForm.locator("textarea").fill("Great company to work for!");
 
     // Submit
     await page.getByRole("button", { name: "Submit Review" }).click();
@@ -86,9 +89,11 @@ test.describe("Reviews & Ratings", () => {
     await expect(page.getByText("Review submitted successfully")).toBeVisible();
 
     // Review should appear
-    await expect(page.getByText("Reviews (1)")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Reviews (1)" })).toBeVisible();
     await expect(page.getByText("Great company to work for!")).toBeVisible();
-    await expect(page.locator("strong", { hasText: "Software Engineer" })).toBeVisible();
+    await expect(
+      page.locator("strong", { hasText: "Software Engineer" }),
+    ).toBeVisible();
   });
 
   test("R3: Average rating shows on company detail", async ({ page }) => {
@@ -106,7 +111,7 @@ test.describe("Reviews & Ratings", () => {
     ).toBeVisible();
     await expect(page.getByText("Write a Review")).not.toBeVisible();
     // But can see existing reviews
-    await expect(page.getByText("Reviews (1)")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Reviews (1)" })).toBeVisible();
   });
 
   test("R5: Unauthenticated user sees reviews but no form", async ({

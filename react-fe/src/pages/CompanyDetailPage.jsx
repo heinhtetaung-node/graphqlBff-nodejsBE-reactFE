@@ -1,7 +1,13 @@
 import { useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useSearchParams } from "react-router-dom";
 import { useQuery, useMutation } from "@apollo/client";
-import { GET_REVIEWS, CREATE_REVIEW, GET_COMPANIES } from "../graphql/queries";
+import {
+  GET_REVIEWS,
+  CREATE_REVIEW,
+  GET_COMPANIES,
+  GET_INTERVIEW_EXPERIENCES,
+  CREATE_INTERVIEW_EXPERIENCE,
+} from "../graphql/queries";
 import { useAuth } from "../context/AuthContext";
 
 function StarRating({ value, onChange, readonly }) {
@@ -26,13 +32,49 @@ function StarRating({ value, onChange, readonly }) {
   );
 }
 
+const DIFFICULTY_LABELS = ["", "Very Easy", "Easy", "Medium", "Hard", "Very Hard"];
+const DIFFICULTY_COLORS = ["", "#22c55e", "#84cc16", "#eab308", "#f97316", "#ef4444"];
+
+function DifficultyBadge({ value }) {
+  return (
+    <span
+      style={{
+        display: "inline-block",
+        padding: "2px 10px",
+        borderRadius: 12,
+        fontSize: 13,
+        fontWeight: 600,
+        background: DIFFICULTY_COLORS[value] + "22",
+        color: DIFFICULTY_COLORS[value],
+      }}
+    >
+      {DIFFICULTY_LABELS[value]}
+    </span>
+  );
+}
+
+const RESULT_OPTIONS = ["Got Offer", "No Offer", "Declined", "Ghosted"];
+
 export default function CompanyDetailPage() {
   const { id } = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useAuth();
+  const [activeTab, setActiveTab] = useState(searchParams.get("tab") || "reviews");
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    setSearchParams({ tab });
+  };
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
   const [positionTitle, setPositionTitle] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [iePositionTitle, setIePositionTitle] = useState("");
+  const [ieDifficulty, setIeDifficulty] = useState(0);
+  const [ieResult, setIeResult] = useState("");
+  const [ieDescription, setIeDescription] = useState("");
+  const [ieInterviewDate, setIeInterviewDate] = useState("");
+  const [ieSubmitted, setIeSubmitted] = useState(false);
 
   const { data: companiesData } = useQuery(GET_COMPANIES, {
     variables: { page: 1, limit: 100 },
@@ -60,15 +102,63 @@ export default function CompanyDetailPage() {
     },
   );
 
+  const {
+    data: ieData,
+    loading: ieLoading,
+    refetch: ieRefetch,
+  } = useQuery(GET_INTERVIEW_EXPERIENCES, {
+    variables: { companyId: id, page: 1, limit: 50 },
+  });
+
+  const [createInterviewExperience, { loading: ieSubmitting, error: ieError }] =
+    useMutation(CREATE_INTERVIEW_EXPERIENCE, {
+      onCompleted: () => {
+        setIeSubmitted(true);
+        setIePositionTitle("");
+        setIeDifficulty(0);
+        setIeResult("");
+        setIeDescription("");
+        setIeInterviewDate("");
+        ieRefetch();
+      },
+    });
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (rating < 1) return;
-    createReview({ variables: { companyId: id, rating, comment, positionTitle: positionTitle || undefined } });
+    createReview({
+      variables: {
+        companyId: id,
+        rating,
+        comment,
+        positionTitle: positionTitle || undefined,
+      },
+    });
+  };
+
+  const handleIeSubmit = (e) => {
+    e.preventDefault();
+    if (ieDifficulty < 1 || !iePositionTitle.trim()) return;
+    createInterviewExperience({
+      variables: {
+        companyId: id,
+        positionTitle: iePositionTitle,
+        difficulty: ieDifficulty,
+        result: ieResult || undefined,
+        description: ieDescription || undefined,
+        interviewDate: ieInterviewDate || undefined,
+      },
+    });
   };
 
   const reviews = reviewsData?.reviews?.reviews || [];
   const averageRating = reviewsData?.reviews?.averageRating || 0;
   const totalReviews = reviewsData?.reviews?.total || 0;
+
+  const interviewExperiences =
+    ieData?.interviewExperiences?.interviewExperiences || [];
+  const totalInterviews = ieData?.interviewExperiences?.total || 0;
+  const averageDifficulty = ieData?.interviewExperiences?.averageDifficulty || 0;
 
   return (
     <div style={{ maxWidth: 800, margin: "32px auto" }}>
@@ -117,7 +207,24 @@ export default function CompanyDetailPage() {
         </div>
       )}
 
-      {user?.role === "JOB_HUNTER" && !submitted && (
+      <div style={{ display: "flex", gap: 0, marginBottom: 24 }}>
+        <button
+          className={activeTab === "reviews" ? "btn btn-primary" : "btn btn-secondary"}
+          onClick={() => handleTabChange("reviews")}
+          style={{ borderRadius: "8px 0 0 8px", flex: 1 }}
+        >
+          Reviews ({totalReviews})
+        </button>
+        <button
+          className={activeTab === "interviews" ? "btn btn-primary" : "btn btn-secondary"}
+          onClick={() => handleTabChange("interviews")}
+          style={{ borderRadius: "0 8px 8px 0", flex: 1 }}
+        >
+          Interviews ({totalInterviews})
+        </button>
+      </div>
+
+      {activeTab === "reviews" && user?.role === "JOB_HUNTER" && !submitted && (
         <div className="card" style={{ marginBottom: 24 }}>
           <h3 style={{ marginBottom: 16 }}>Write a Review</h3>
           {error && <p className="error">{error.message}</p>}
@@ -154,7 +261,7 @@ export default function CompanyDetailPage() {
         </div>
       )}
 
-      {submitted && (
+      {activeTab === "reviews" && submitted && (
         <div
           className="card"
           style={{
@@ -169,7 +276,7 @@ export default function CompanyDetailPage() {
         </div>
       )}
 
-      <div className="card">
+      {activeTab === "reviews" && <div className="card">
         <h3 style={{ marginBottom: 16 }}>Reviews ({totalReviews})</h3>
         {loading && <p>Loading reviews...</p>}
         {reviews.length === 0 && !loading && (
@@ -206,7 +313,156 @@ export default function CompanyDetailPage() {
             )}
           </div>
         ))}
-      </div>
+      </div>}
+
+      {activeTab === "interviews" && user?.role === "JOB_HUNTER" && !ieSubmitted && (
+        <div className="card" style={{ marginBottom: 24 }}>
+          <h3 style={{ marginBottom: 16 }}>Share Interview Experience</h3>
+          {ieError && <p className="error">{ieError.message}</p>}
+          <form onSubmit={handleIeSubmit}>
+            <div className="form-group">
+              <label>Position Title *</label>
+              <input
+                type="text"
+                value={iePositionTitle}
+                onChange={(e) => setIePositionTitle(e.target.value)}
+                placeholder="e.g. Software Engineer"
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label>Difficulty *</label>
+              <div style={{ display: "flex", gap: 8 }}>
+                {[1, 2, 3, 4, 5].map((level) => (
+                  <button
+                    key={level}
+                    type="button"
+                    onClick={() => setIeDifficulty(level)}
+                    style={{
+                      padding: "6px 14px",
+                      borderRadius: 8,
+                      border: ieDifficulty === level ? "2px solid " + DIFFICULTY_COLORS[level] : "1px solid #ddd",
+                      background: ieDifficulty === level ? DIFFICULTY_COLORS[level] + "22" : "#fff",
+                      color: DIFFICULTY_COLORS[level],
+                      fontWeight: 600,
+                      cursor: "pointer",
+                      fontSize: 13,
+                    }}
+                  >
+                    {DIFFICULTY_LABELS[level]}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="form-group">
+              <label>Result</label>
+              <select
+                value={ieResult}
+                onChange={(e) => setIeResult(e.target.value)}
+              >
+                <option value="">Select result...</option>
+                {RESULT_OPTIONS.map((opt) => (
+                  <option key={opt} value={opt}>
+                    {opt}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="form-group">
+              <label>Interview Date</label>
+              <input
+                type="date"
+                value={ieInterviewDate}
+                onChange={(e) => setIeInterviewDate(e.target.value)}
+              />
+            </div>
+            <div className="form-group">
+              <label>Description</label>
+              <textarea
+                rows={4}
+                value={ieDescription}
+                onChange={(e) => setIeDescription(e.target.value)}
+                placeholder="Describe your interview experience..."
+              />
+            </div>
+            <button
+              className="btn btn-primary"
+              disabled={ieSubmitting || ieDifficulty < 1 || !iePositionTitle.trim()}
+            >
+              {ieSubmitting ? "Submitting..." : "Submit Interview Experience"}
+            </button>
+          </form>
+        </div>
+      )}
+
+      {activeTab === "interviews" && ieSubmitted && (
+        <div
+          className="card"
+          style={{
+            background: "#d4edda",
+            textAlign: "center",
+            marginBottom: 24,
+          }}
+        >
+          <p style={{ fontWeight: 600, color: "#155724" }}>
+            Interview experience submitted successfully!
+          </p>
+        </div>
+      )}
+
+      {activeTab === "interviews" && <div className="card">
+        <h3 style={{ marginBottom: 16 }}>
+          Interview Experiences ({totalInterviews})
+        </h3>
+        {totalInterviews > 0 && (
+          <p style={{ marginBottom: 16, color: "#555" }}>
+            Average Difficulty:{" "}
+            <strong>{averageDifficulty.toFixed(1)}</strong> / 5
+          </p>
+        )}
+        {ieLoading && <p>Loading interview experiences...</p>}
+        {interviewExperiences.length === 0 && !ieLoading && (
+          <p style={{ color: "#666" }}>
+            No interview experiences yet. Be the first to share!
+          </p>
+        )}
+        {interviewExperiences.map((ie) => (
+          <div
+            key={ie.id}
+            style={{
+              borderBottom: "1px solid #eee",
+              paddingBottom: 16,
+              marginBottom: 16,
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <strong>{ie.positionTitle}</strong>
+                <DifficultyBadge value={ie.difficulty} />
+              </div>
+              <span style={{ color: "#999", fontSize: 13 }}>
+                {ie.interviewDate
+                  ? new Date(ie.interviewDate).toLocaleDateString()
+                  : new Date(ie.createdAt).toLocaleDateString()}
+              </span>
+            </div>
+            {ie.result && (
+              <p style={{ marginTop: 4, fontSize: 14, fontWeight: 600, color: "#555" }}>
+                Result: {ie.result}
+              </p>
+            )}
+            {ie.description && (
+              <p style={{ marginTop: 8, color: "#444" }}>{ie.description}</p>
+            )}
+          </div>
+        ))}
+      </div>}
     </div>
   );
 }

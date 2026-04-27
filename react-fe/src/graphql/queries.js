@@ -230,6 +230,9 @@ export const GET_COMPANIES = gql`
         reviews {
           total
         }
+        interviewExperiences {
+          total
+        }
       }
       total
     }
@@ -340,12 +343,70 @@ export const GET_REVIEWS = gql`
 `;
 
 export const CREATE_REVIEW = gql`
-  mutation CreateReview($companyId: ID!, $rating: Int!, $comment: String, $positionTitle: String) {
-    createReview(companyId: $companyId, rating: $rating, comment: $comment, positionTitle: $positionTitle) {
+  mutation CreateReview(
+    $companyId: ID!
+    $rating: Int!
+    $comment: String
+    $positionTitle: String
+  ) {
+    createReview(
+      companyId: $companyId
+      rating: $rating
+      comment: $comment
+      positionTitle: $positionTitle
+    ) {
       id
       rating
       comment
       positionTitle
+      createdAt
+    }
+  }
+`;
+
+export const GET_INTERVIEW_EXPERIENCES = gql`
+  query GetInterviewExperiences($companyId: ID!, $page: Int, $limit: Int) {
+    interviewExperiences(companyId: $companyId, page: $page, limit: $limit) {
+      interviewExperiences {
+        id
+        companyId
+        userId
+        positionTitle
+        difficulty
+        result
+        description
+        interviewDate
+        createdAt
+      }
+      total
+      averageDifficulty
+    }
+  }
+`;
+
+export const CREATE_INTERVIEW_EXPERIENCE = gql`
+  mutation CreateInterviewExperience(
+    $companyId: ID!
+    $positionTitle: String!
+    $difficulty: Int!
+    $result: String
+    $description: String
+    $interviewDate: String
+  ) {
+    createInterviewExperience(
+      companyId: $companyId
+      positionTitle: $positionTitle
+      difficulty: $difficulty
+      result: $result
+      description: $description
+      interviewDate: $interviewDate
+    ) {
+      id
+      positionTitle
+      difficulty
+      result
+      description
+      interviewDate
       createdAt
     }
   }

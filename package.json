@@ -12,6 +12,7 @@
     "dev:user": "cd services/user-service && npm run dev",
     "dev:subscription": "cd services/subscription-service && npm run dev",
     "dev:bff": "cd graphql-bff && npm run dev",
-    "dev:fe": "cd react-fe && npm run dev"
+    "dev:fe": "cd react-fe && npm run dev",
+    "proto-gen": "bash scripts/proto-gen.sh"
   }
 }

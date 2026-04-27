@@ -76,11 +76,18 @@ export default function CompaniesPage() {
                 View Jobs
               </Link>
               <Link
-                to={`/companies/${company.id}`}
+                to={`/companies/${company.id}?tab=reviews`}
                 className="btn btn-secondary"
                 style={{ display: "inline-block", fontSize: 14 }}
               >
                 Reviews
+              </Link>
+              <Link
+                to={`/companies/${company.id}?tab=interviews`}
+                className="btn btn-secondary"
+                style={{ display: "inline-block", fontSize: 14 }}
+              >
+                Interviews ({company.interviewExperiences?.total || 0})
               </Link>
             </div>
           </div>
@@ -92,7 +99,15 @@ export default function CompaniesPage() {
         </p>
       )}
       {total > limit && (
-        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 16, marginTop: 24 }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: 16,
+            marginTop: 24,
+          }}
+        >
           <button
             className="btn btn-secondary"
             disabled={page <= 1}
@@ -100,7 +115,9 @@ export default function CompaniesPage() {
           >
             Previous
           </button>
-          <span>Page {page} of {Math.ceil(total / limit)}</span>
+          <span>
+            Page {page} of {Math.ceil(total / limit)}
+          </span>
           <button
             className="btn btn-secondary"
             disabled={page >= Math.ceil(total / limit)}

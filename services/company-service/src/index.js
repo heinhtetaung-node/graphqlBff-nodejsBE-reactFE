@@ -172,7 +172,14 @@ const handlers = {
       const id = uuidv4();
       const { positionTitle } = call.request;
       const [row] = await db("reviews")
-        .insert({ id, company_id: companyId, user_id: userId, rating, comment, position_title: positionTitle || null })
+        .insert({
+          id,
+          company_id: companyId,
+          user_id: userId,
+          rating,
+          comment,
+          position_title: positionTitle || null,
+        })
         .returning("*");
       callback(null, { review: toProtoReview(row) });
     } catch (err) {
